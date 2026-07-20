@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+
+# Graphify output (never index self)
+graphify-out/
+
+# Local / IDE / secrets
+.env
+.env.*
+.DS_Store

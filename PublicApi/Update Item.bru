@@ -1,0 +1,64 @@
+meta {
+  name: Update Item
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "data": {}
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Update Item
+  
+  Partial update of field values on an existing item.
+  
+  **Method:** PATCH  
+  **Endpoint:** `{{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}`  
+  **Auth:** Bearer inherit  
+  **Permission:** `update`
+  
+  ---
+  
+  ## Body
+  
+  ```json
+  {
+    "data": {
+      "title": "Updated title"
+    }
+  }
+  ```
+  
+  ---
+  
+  ## Response (200)
+  
+  Updated item payload.
+  
+  ## Errors
+  
+  | Status | Cause |
+  |--------|-------|
+  | 403 | No `update` grant |
+  | 404 | Unknown collection or item |
+  | 422 | Validation failed |
+}

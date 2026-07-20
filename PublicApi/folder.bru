@@ -1,0 +1,44 @@
+meta {
+  name: PublicApi
+  seq: 1
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{api_key}}
+}
+
+docs {
+  # PublicApi
+  
+  Headless Externa Public CMS API under `/api/v1`.
+  
+  ## Auth (folder default)
+  
+  Bearer token `{{api_key}}` (Admin → API Keys). Requests with `auth: inherit` use this.
+  
+  **List Collections Anonymous** overrides with `auth: none` to hit the system role `public`.
+  
+  ## Permissions
+  
+  Grants live on the role (Collection access matrix), not on Spatie admin permissions:
+  
+  - Anonymous → role `public`
+  - API key → role linked to the key
+  
+  Actions: `create` | `read` | `update` | `delete`. Missing grant = **deny** (403).
+  
+  ## Env vars
+  
+  | Variable | Purpose |
+  |----------|---------|
+  | base_url | App origin, e.g. `http://externa-core.test` |
+  | api_key | Secret `ek_…` |
+  | collection_slug | Target collection |
+  | item_id | Target item for get/update/delete |
+  
+  Docs site: externa-docs → Public CMS API.
+}

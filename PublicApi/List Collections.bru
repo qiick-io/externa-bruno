@@ -1,0 +1,52 @@
+meta {
+  name: List Collections
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/v1/collections
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # List Collections
+  
+  Lists collections the **API key role** may **read**.
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/collections`  
+  **Auth:** Bearer `{{api_key}}` (folder inherit)  
+  **Permission:** collections with `read` on the key’s role
+  
+  ---
+  
+  ## Setup
+  
+  1. Create/edit a role → Collection access → **Read** ✓ on collections  
+  2. API Keys → create key bound to that role → paste into env `api_key`  
+  3. Send
+  
+  ---
+  
+  ## Response (200)
+  
+  Same shape as anonymous list. Empty `data` if the role has no read grants.
+  
+  ## Errors
+  
+  | Status | Cause |
+  |--------|-------|
+  | 401 | Invalid/revoked key, IP not allowlisted, key on super-admin |
+  | 429 | Rate limit exceeded |
+}

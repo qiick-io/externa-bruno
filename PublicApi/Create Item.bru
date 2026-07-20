@@ -1,0 +1,72 @@
+meta {
+  name: Create Item
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "data": {}
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Create Item
+  
+  Creates an item. Fill `data` with field values matching the collection schema.
+  
+  **Method:** POST  
+  **Endpoint:** `{{base_url}}/api/v1/collections/{{collection_slug}}/items`  
+  **Auth:** Bearer inherit  
+  **Permission:** `create`
+  
+  ---
+  
+  ## Body
+  
+  ```json
+  {
+    "data": {
+      "title": "New post"
+    }
+  }
+  ```
+  
+  Empty `{}` works only if the collection has no required fields.
+  
+  ---
+  
+  ## Response (201)
+  
+  Same item shape as Get Item.
+  
+  ## Errors
+  
+  | Status | Cause |
+  |--------|-------|
+  | 403 | No `create` (e.g. public role with read-only) |
+  | 422 | Validation / unknown keys / singleton already has item |
+  | 404 | Unknown collection |
+  
+  ---
+  
+  ## Tip
+  
+  After a successful create, copy `data.id` into env `item_id` for Update/Delete tests.
+}
