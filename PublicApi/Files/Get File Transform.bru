@@ -1,0 +1,30 @@
+meta {
+  name: Get File Transform
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/api/v1/files/{{file_id}}/transforms/size-64
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: image/*
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Get File Transform
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/files/{{file_id}}/transforms/{key}`  
+  **Permission:** `file:read`
+  
+  `{key}` is a project preset (e.g. `thumbnail`) or legacy `size-{n}`.
+}

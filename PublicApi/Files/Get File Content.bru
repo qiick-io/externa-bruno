@@ -1,0 +1,30 @@
+meta {
+  name: Get File Content
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/api/v1/files/{{file_id}}/content
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Get File Content
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/files/{{file_id}}/content`  
+  **Permission:** `file:read`
+  
+  Streams the original file bytes (no admin session required).
+}

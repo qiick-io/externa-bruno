@@ -1,0 +1,38 @@
+meta {
+  name: Upload File
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/api/v1/files
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  file: @file(/path/to/image.jpg)
+  parent_id: 
+  name: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Upload File
+  
+  **Method:** POST  
+  **Endpoint:** `{{base_url}}/api/v1/files`  
+  **Permission:** `file:create`
+  
+  Multipart field `file` (required). Optional `parent_id`, `name`.
+  
+  Replace the `@file(...)` path with a local file before sending.
+}

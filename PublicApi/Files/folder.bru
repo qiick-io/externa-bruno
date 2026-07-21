@@ -1,0 +1,16 @@
+meta {
+  name: Files
+  seq: 10
+}
+
+docs {
+  # Files
+  
+  Public CMS API file endpoints under `/api/v1/files*`.
+  
+  Gated by **Files access** on the role (global CRUD — not per-folder).
+  
+  Missing grant = **deny** (403).
+  
+  Env: `base_url`, `api_key`, optional `file_id`.
+}

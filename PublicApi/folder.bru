@@ -24,12 +24,14 @@ docs {
   
   ## Permissions
   
-  Grants live on the role (Collection access matrix), not on Spatie admin permissions:
+  Grants live on the role (**Collection access** + **Files access**), not on Spatie admin permissions:
   
   - Anonymous → role `public`
   - API key → role linked to the key
   
   Actions: `create` | `read` | `update` | `delete`. Missing grant = **deny** (403).
+  
+  Subfolder **Files** covers `/api/v1/files*` (global file CRUD).
   
   ## Env vars
   
@@ -39,6 +41,7 @@ docs {
   | api_key | Secret `ek_…` |
   | collection_slug | Target collection |
   | item_id | Target item for get/update/delete |
+  | file_id | Target file for Files requests |
   
   Docs site: externa-docs → Public CMS API.
 }

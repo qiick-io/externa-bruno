@@ -1,0 +1,40 @@
+meta {
+  name: Update File
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{base_url}}/api/v1/files/{{file_id}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Hero",
+    "description": "Updated via Public CMS API",
+    "focal_point_x": 0.35,
+    "focal_point_y": 0.6
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Update File
+  
+  **Method:** PATCH  
+  **Endpoint:** `{{base_url}}/api/v1/files/{{file_id}}`  
+  **Permission:** `file:update`
+  
+  Metadata fields: `title`, `description`, `location`, `download_name`, `focal_point_x|y` (0–1), `name`.
+}

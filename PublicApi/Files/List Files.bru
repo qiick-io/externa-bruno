@@ -1,0 +1,32 @@
+meta {
+  name: List Files
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/files?search=&parent_id=&page=1&per_page=15
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # List Files
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/files`  
+  **Permission:** `file:read`
+  
+  Query: `parent_id`, `search`, `page`, `per_page` (1–100).
+  
+  Search uses the same server-side `LOWER(name|path|title) LIKE` logic as the admin file manager.
+}

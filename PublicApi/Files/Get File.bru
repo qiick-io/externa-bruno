@@ -1,0 +1,30 @@
+meta {
+  name: Get File
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/v1/files/{{file_id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Get File
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/files/{{file_id}}`  
+  **Permission:** `file:read`
+  
+  Returns metadata including `url` (content) and `transforms` preset map.
+}
