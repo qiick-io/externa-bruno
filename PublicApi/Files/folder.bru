@@ -8,9 +8,22 @@ docs {
   
   Public CMS API file endpoints under `/api/v1/files*`.
   
-  Gated by **Files access** on the role (global CRUD — not per-folder).
+  Gated by **Files access** on the role (global — not per-folder).
+  
+  Actions: `create` | `read` | `read_private` | `update` | `delete`.
   
   Missing grant = **deny** (403).
+  
+  ## Public vs private
+  
+  | Effective `access` | Role has `read` only | Role has `read` + `read_private` |
+  | --- | --- | --- |
+  | public / inherit→public | List / show / content / transform **200** | Same |
+  | private | List **omits** row; get/content/transform **403** | Full access |
+  
+  Typical **`public`** role: Read ✓, Read private ✕.
+  
+  Item expanders (image/file/files): private without `read_private` → `null` / omit (no id leak).
   
   Env: `base_url`, `api_key`, optional `file_id`.
 }

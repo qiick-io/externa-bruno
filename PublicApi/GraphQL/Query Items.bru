@@ -1,0 +1,31 @@
+meta {
+  name: Query Items
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/graphql
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "query ($slug: String!, $filter: JSON) { items(collection: $slug, filter: $filter) { data { id data } meta { total current_page } } }",
+    "variables": {
+      "slug": "{{collection_slug}}",
+      "filter": { "status": { "_eq": "published" } }
+    }
+  }
+}
+
+docs {
+  # GraphQL items
+  Same auth as REST (`public` role or Bearer API key). Filter dialect matches advanced list filters.
+}

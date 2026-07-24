@@ -24,9 +24,15 @@ docs {
   
   **Method:** GET  
   **Endpoint:** `{{base_url}}/api/v1/files`  
-  **Permission:** `file:read`
+  **Permission:** `file:read` (private rows also need `file:read_private`)
   
   Query: `parent_id`, `search`, `page`, `per_page` (1–100).
   
   Search uses the same server-side `LOWER(name|path|title) LIKE` logic as the admin file manager.
+  
+  | Case | Expected |
+  | --- | --- |
+  | Public rows + `read` | Included in `data` |
+  | Private rows + `read` only (typical `public` role) | **Omitted** (still **200**) |
+  | Private rows + `read_private` | Included |
 }

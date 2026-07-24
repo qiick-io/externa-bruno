@@ -4,6 +4,7 @@ vars {
   collection_slug: posts
   item_id: 1
   file_id: 1
+  webhook_secret: 
 }
 
 docs {
@@ -18,4 +19,5 @@ docs {
   | collection_slug | Must exist in externa-core |
   | item_id | Existing item for get/update/delete |
   | file_id | Existing file for get/content/transform/patch/delete |
+  | webhook_secret | Project settings webhook secret (HMAC helper in Webhooks/) |
 }

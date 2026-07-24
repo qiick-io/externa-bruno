@@ -1,0 +1,34 @@
+meta {
+  name: Create Item Mutation
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/graphql
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "mutation ($slug: String!, $data: JSON!) { createItem(collection: $slug, data: $data) { id data } }",
+    "variables": {
+      "slug": "{{collection_slug}}",
+      "data": {
+        "title": "GraphQL create",
+        "status": "draft"
+      }
+    }
+  }
+}
+
+docs {
+  # GraphQL createItem
+  Requires `create` on the collection for the API key / public role. Same validation as REST POST.
+}

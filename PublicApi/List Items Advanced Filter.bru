@@ -1,0 +1,27 @@
+meta {
+  name: List Items Advanced Filter
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items?filter[status][_eq]=published&page=1&per_page=15
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[status][_eq]: published
+  page: 1
+  per_page: 15
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  # Advanced filters
+  Operators: `_eq`, `_neq`, `_contains`, `_in`, `_null`, `_nnull`, `_gt`, `_gte`, `_lt`, `_lte`.
+  Plain `filter[title]=foo` still means contains.
+}

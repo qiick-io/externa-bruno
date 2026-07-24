@@ -47,6 +47,37 @@ docs {
     }
   }
   ```
+
+  Blocks field example:
+
+  ```json
+  {
+    "data": {
+      "content": [
+        {
+          "id": "11111111-1111-1111-1111-111111111111",
+          "type": "rich_text",
+          "data": {
+            "title": { "en": "Hello", "it": "Ciao" },
+            "body": { "en": "<p>Body</p>" }
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+  Many-to-many with junction metadata (see also **Create Item With Junction Meta**):
+
+  ```json
+  {
+    "data": {
+      "related_tags": [
+        { "related_item_id": 1, "meta": { "sort": 1 } }
+      ]
+    }
+  }
+  ```
   
   Empty `{}` works only if the collection has no required fields.
   

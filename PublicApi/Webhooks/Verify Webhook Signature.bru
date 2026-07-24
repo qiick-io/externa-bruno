@@ -1,0 +1,87 @@
+meta {
+  name: Verify Webhook Signature
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/__webhook_receiver_docs_only__
+  body: raw
+  auth: none
+}
+
+body:raw {
+  {
+    "id": "evt_01example",
+    "type": "item.updated",
+    "created_at": "2026-07-24T12:00:00Z",
+    "data": {
+      "collection_id": 1,
+      "collection_slug": "posts",
+      "item_id": 42
+    }
+  }
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Externa-Event-Id: evt_01example
+  X-Externa-Timestamp: 1721822400
+  X-Externa-Signature: sha256=REPLACE_WITH_HMAC
+}
+
+vars:pre-request {
+  // Docs/script helper: compute HMAC for the raw body using webhook_secret.
+  // Set env var webhook_secret to the Project settings secret.
+  const body = req.getBody()?.data ?? '';
+  const secret = bru.getEnvVar('webhook_secret') || '';
+  if (secret && typeof crypto !== 'undefined' && crypto.createHmac) {
+    const sig = 'sha256=' + crypto.createHmac('sha256', secret).update(body).digest('hex');
+    req.setHeader('X-Externa-Signature', sig);
+    bru.setVar('computed_signature', sig);
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Verify webhook signature
+  
+  Externa **outbound** webhooks are not an API you call on Externa — Externa POSTs to **your** URL.
+  
+  This request is a **consumer checklist / HMAC helper**, not a live Externa endpoint.
+  
+  Full docs: externa-docs → `/docs/webhooks`
+  
+  ## Headers Externa sends
+  
+  | Header | Meaning |
+  |--------|--------|
+  | `X-Externa-Signature` | `sha256=` + HMAC-SHA256(raw body, project webhook secret) |
+  | `X-Externa-Event-Id` | Event id (`evt_…`) |
+  | `X-Externa-Timestamp` | Unix seconds at delivery time |
+  
+  ## Verify (Node)
+  
+  ```js
+  const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
+  crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(header))
+  ```
+  
+  ## Env vars
+  
+  | Variable | Purpose |
+  |----------|---------|
+  | `webhook_secret` | Same secret as Project settings (for pre-request HMAC) |
+  
+  ## Configure Externa
+  
+  1. Settings → Project → Webhook URL + Generate secret → Save  
+  2. Run a queue worker  
+  3. Create/update an item (or Send test event)  
+  4. Inspect the POST on webhook.site / your receiver  
+}

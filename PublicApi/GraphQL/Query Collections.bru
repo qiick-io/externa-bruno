@@ -1,0 +1,27 @@
+meta {
+  name: Query Collections
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/graphql
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "{ collections { slug name } }"
+  }
+}
+
+docs {
+  # GraphQL collections
+  Lists collections readable by the public role or Bearer API key role (same as REST list).
+}

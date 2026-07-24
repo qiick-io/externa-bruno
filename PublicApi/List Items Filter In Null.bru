@@ -1,0 +1,25 @@
+meta {
+  name: List Items Filter In Null
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items?filter[status][_in]=published,draft&filter[body][_nnull]=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[status][_in]: published,draft
+  filter[body][_nnull]: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  # Advanced filters — _in + _nnull
+  Multiple filter fields are AND-combined. Operators: `_eq`, `_neq`, `_contains`, `_in`, `_null`, `_nnull`, `_gt`, `_gte`, `_lt`, `_lte`.
+}

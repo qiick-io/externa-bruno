@@ -1,0 +1,31 @@
+meta {
+  name: Delete Item Mutation
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/api/graphql
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "mutation ($slug: String!, $id: ID!) { deleteItem(collection: $slug, id: $id) }",
+    "variables": {
+      "slug": "{{collection_slug}}",
+      "id": "{{item_id}}"
+    }
+  }
+}
+
+docs {
+  # GraphQL deleteItem
+  Requires `delete`. Soft-delete semantics match REST.
+}

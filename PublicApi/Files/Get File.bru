@@ -24,7 +24,13 @@ docs {
   
   **Method:** GET  
   **Endpoint:** `{{base_url}}/api/v1/files/{{file_id}}`  
-  **Permission:** `file:read`
+  **Permission:** `file:read` (+ `file:read_private` when effective access is private)
   
-  Returns metadata including `url` (content) and `transforms` preset map.
+  Returns metadata including `access` (effective), `url` (content), and `transforms` preset map.
+  
+  | Case | Expected |
+  | --- | --- |
+  | Public file + `read` | **200** |
+  | Private file + `read` only (typical `public` role) | **403** |
+  | Private file + `read` + `read_private` | **200** |
 }
