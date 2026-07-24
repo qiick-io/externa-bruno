@@ -67,6 +67,19 @@ docs {
   }
   ```
 
+  Map field (GeoJSON Point; MultiPoint uses `"type": "MultiPoint"` and an array of `[lng, lat]` pairs). Legacy `{ "lat", "lng" }` is still accepted on write:
+
+  ```json
+  {
+    "data": {
+      "location": {
+        "type": "Point",
+        "coordinates": [9.19, 45.4642]
+      }
+    }
+  }
+  ```
+
   Many-to-many with junction metadata (see also **Create Item With Junction Meta**):
 
   ```json

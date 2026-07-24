@@ -1,0 +1,90 @@
+meta {
+  name: Create Item Nested Blocks
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "data": {
+      "body": [
+        {
+          "id": "11111111-1111-1111-1111-111111111111",
+          "type": "section",
+          "data": {
+            "heading": "Chapter",
+            "blocks": [
+              {
+                "id": "22222222-2222-2222-2222-222222222222",
+                "type": "rich_text",
+                "data": {
+                  "body": "<p>Nested leaf</p>"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "33333333-3333-3333-3333-333333333333",
+          "type": "related_modules",
+          "data": {
+            "modules": [
+              {
+                "related_collection_id": 2,
+                "related_item_id": 10
+              }
+            ]
+          }
+        },
+        {
+          "id": "44444444-4444-4444-4444-444444444444",
+          "type": "related_articles",
+          "data": {
+            "articles": [
+              {
+                "related_item_id": 5,
+                "meta": {
+                  "note": "featured"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Create Item — Nested Blocks
+
+  Sample payload for an Articles-style `blocks` field with:
+
+  - nested `blocks` (section → inner rich_text)
+  - nested `m2a` links (JSON-embedded, not a junction)
+  - nested `many_to_many` links (`{ related_item_id, meta }` in block JSON)
+
+  Adjust `related_collection_id` / `related_item_id` to real IDs in your env.
+  Field schema must allow these block types (see field-types docs — Blocks).
+
+  **Method:** POST
+  **Endpoint:** `{{base_url}}/api/v1/collections/{{collection_slug}}/items`
+  **Auth:** Bearer inherit
+  **Permission:** `create`
+}
