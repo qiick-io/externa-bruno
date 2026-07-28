@@ -1,0 +1,61 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate Bruno collection
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! -f bruno.json ]]; then
+            echo "bruno.json is missing"
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          path = Path("bruno.json")
+          try:
+              data = json.loads(path.read_text())
+          except json.JSONDecodeError as exc:
+              print(f"bruno.json is not valid JSON: {exc}", file=sys.stderr)
+              sys.exit(1)
+
+          if not isinstance(data, dict):
+              print("bruno.json must be a JSON object", file=sys.stderr)
+              sys.exit(1)
+
+          for key in ("version", "name", "type"):
+              if key not in data:
+                  print(f"bruno.json missing required key: {key}", file=sys.stderr)
+                  sys.exit(1)
+
+          if data.get("type") != "collection":
+              print(f'bruno.json type must be "collection", got {data.get("type")!r}', file=sys.stderr)
+              sys.exit(1)
+
+          print(f"bruno.json OK: {data['name']} (v{data['version']})")
+          PY
+
+          count="$(find . -name '*.bru' -not -path './.git/*' | wc -l | tr -d ' ')"
+          if [[ "$count" -lt 1 ]]; then
+            echo "No .bru request files found"
+            exit 1
+          fi
+
+          echo "Found $count .bru file(s)"
