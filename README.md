@@ -2,6 +2,10 @@
 
 Classic Bruno collection for the **Public CMS API** (`/api/v1`) and **GraphQL** (`/api/graphql`) — same layout style as Klover (`bruno.json` + folders + `.bru`).
 
+**Version:** `1.0.0-beta.1` (see `package.json`). **Targets externa-core `1.0.0-beta.1`.**
+
+> Note: `bruno.json` → `"version": "1"` is Bruno’s collection *format* schema, not this package’s semver.
+
 Full product docs: sibling repo **externa-docs** → `/docs/public-cms-api`, `/docs/security-checklist`.
 
 ## Open in Bruno
@@ -100,6 +104,7 @@ Folder auth: `PublicApi/folder.bru` sets Bearer `{{api_key}}` for inherited requ
 ```
 externa-bruno/
 ├── bruno.json
+├── package.json
 ├── README.md
 ├── environments/
 │   └── Externa Local.bru
