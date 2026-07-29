@@ -4,6 +4,11 @@ meta {
   seq: 4
 }
 
+vars:pre-request {
+  collection_slug: posts
+  item_id: 1
+}
+
 post {
   url: {{base_url}}/api/graphql
   body: json
@@ -26,6 +31,26 @@ body:json {
       }
     }
   }
+}
+
+tests {
+  test("returns HTTP 200 or auth error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403]);
+  });
+
+  test("GraphQL payload has data or errors when HTTP 200", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body.data != null || body.errors != null).to.equal(true);
+  });
+
+  test("updateItem shape when successful", function () {
+    if (res.getStatus() !== 200) return;
+    const updated = res.getBody().data && res.getBody().data.updateItem;
+    if (!updated) return;
+    expect(updated).to.include.keys("id", "data");
+  });
 }
 
 docs {

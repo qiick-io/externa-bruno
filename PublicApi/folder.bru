@@ -33,15 +33,24 @@ docs {
   
   Subfolder **Files** covers `/api/v1/files*` (global file CRUD).
   
-  ## Env vars
+  ## Shared env vars
   
   | Variable | Purpose |
   |----------|---------|
   | base_url | App origin, e.g. `http://externa-core.test` |
   | api_key | Secret `ek_…` |
-  | collection_slug | Target collection |
-  | item_id | Target item for get/update/delete |
-  | file_id | Target file for Files requests |
+  
+  Request-specific values (`collection_slug`, `item_id`, `file_id`, `include`) live in each request’s `vars:pre-request` block — not bare `vars { }` (fragile in Bruno).
+  
+  ## Typical site reads (avoid N+1)
+  
+  Item list/show are **lean by default**. Prefer one request with expansions:
+  
+  | Goal | `include` value |
+  |------|-----------------|
+  | Slim / IDs only | omit or empty |
+  | Media + editors | `files,users` (Bruno default on list/get) |
+  | + relations | `files,users,author,categories` (real field names) |
   
   Docs site: externa-docs → Public CMS API.
 }

@@ -4,6 +4,10 @@ meta {
   seq: 3
 }
 
+vars:pre-request {
+  collection_slug: posts
+}
+
 get {
   url: {{base_url}}/api/v1/collections/{{collection_slug}}
   body: none
@@ -19,6 +23,20 @@ settings {
   timeout: 0
 }
 
+tests {
+  test("returns 200 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404]);
+  });
+
+  test("200 body has collection data shape", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id", "name", "slug", "fields");
+    expect(body.data.fields).to.be.an("array");
+  });
+}
+
 docs {
   # Get Collection
   
@@ -31,7 +49,7 @@ docs {
   
   ---
   
-  ## Env
+  ## Request vars
   
   | Variable | Example |
   |----------|---------|

@@ -25,5 +25,5 @@ docs {
   
   Item expanders (image/file/files): private without `read_private` → `null` / omit (no id leak).
   
-  Env: `base_url`, `api_key`, optional `file_id`.
+  Shared env: `base_url`, `api_key`. Per-request file targets use each request's local `file_id`.
 }

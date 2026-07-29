@@ -21,6 +21,30 @@ body:json {
   }
 }
 
+tests {
+  test("returns HTTP 200 or auth error", function () {
+    // Empty/invalid Bearer → 401 before GraphQL executes
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403]);
+  });
+
+  test("GraphQL payload has data or errors when HTTP 200", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body.data != null || body.errors != null).to.equal(true);
+  });
+
+  test("collections list shape when data present", function () {
+    if (res.getStatus() !== 200) return;
+    const data = res.getBody().data;
+    if (!data || data.collections == null) return;
+    expect(data.collections).to.be.an("array");
+    data.collections.forEach(function (row) {
+      expect(row).to.include.keys("slug", "name");
+    });
+  });
+}
+
 docs {
   # GraphQL collections
   Lists collections readable by the public role or Bearer API key role (same as REST list).

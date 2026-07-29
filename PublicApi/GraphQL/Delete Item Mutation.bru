@@ -4,6 +4,11 @@ meta {
   seq: 5
 }
 
+vars:pre-request {
+  collection_slug: posts
+  item_id: 1
+}
+
 post {
   url: {{base_url}}/api/graphql
   body: json
@@ -23,6 +28,19 @@ body:json {
       "id": "{{item_id}}"
     }
   }
+}
+
+tests {
+  test("returns HTTP 200 or auth error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403]);
+  });
+
+  test("GraphQL payload has data or errors when HTTP 200", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body.data != null || body.errors != null).to.equal(true);
+  });
 }
 
 docs {

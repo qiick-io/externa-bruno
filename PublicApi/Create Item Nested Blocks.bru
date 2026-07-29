@@ -4,6 +4,10 @@ meta {
   seq: 7
 }
 
+vars:pre-request {
+  collection_slug: posts
+}
+
 post {
   url: {{base_url}}/api/v1/collections/{{collection_slug}}/items
   body: json
@@ -71,6 +75,19 @@ settings {
   timeout: 0
 }
 
+tests {
+  test("returns create success or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([201, 401, 403, 404, 422]);
+  });
+
+  test("201 body has created item shape", function () {
+    if (res.getStatus() !== 201) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id", "data");
+  });
+}
+
 docs {
   # Create Item — Nested Blocks
 
@@ -80,7 +97,7 @@ docs {
   - nested `m2a` links (JSON-embedded, not a junction)
   - nested `many_to_many` links (`{ related_item_id, meta }` in block JSON)
 
-  Adjust `related_collection_id` / `related_item_id` to real IDs in your env.
+  Adjust `related_collection_id` / `related_item_id` to real IDs in this request body.
   Field schema must allow these block types (see field-types docs — Blocks).
 
   **Method:** POST

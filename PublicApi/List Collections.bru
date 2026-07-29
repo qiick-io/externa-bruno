@@ -19,6 +19,25 @@ settings {
   timeout: 0
 }
 
+tests {
+  test("returns 200 or auth/origin error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403]);
+  });
+
+  test("200 body has data array", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("array");
+  });
+
+  test("each collection has id name slug when present", function () {
+    if (res.getStatus() !== 200) return;
+    (res.getBody().data || []).forEach(function (row) {
+      expect(row).to.include.keys("id", "name", "slug");
+    });
+  });
+}
+
 docs {
   # List Collections
   

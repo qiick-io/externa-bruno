@@ -19,6 +19,34 @@ settings {
   timeout: 0
 }
 
+tests {
+  test("returns 200 or origin-gate 403", function () {
+    // Empty allowlist → 200. Non-empty allowlist without Origin/key → 403.
+    expect(res.getStatus()).to.be.oneOf([200, 403]);
+  });
+
+  test("200 body has data array", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("data").that.is.an("array");
+  });
+
+  test("each collection has id name slug when present", function () {
+    if (res.getStatus() !== 200) return;
+    (res.getBody().data || []).forEach(function (row) {
+      expect(row).to.include.keys("id", "name", "slug");
+    });
+  });
+
+  test("403 origin gate mentions Origin or API key", function () {
+    if (res.getStatus() !== 403) return;
+    const body = res.getBody();
+    const msg = (body && (body.message || body.error)) || JSON.stringify(body);
+    expect(String(msg)).to.match(/Origin|API key/i);
+  });
+}
+
 docs {
   # List Collections Anonymous
   

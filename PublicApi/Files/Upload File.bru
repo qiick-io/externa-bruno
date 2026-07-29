@@ -15,7 +15,7 @@ headers {
 }
 
 body:multipart-form {
-  file: @file(/path/to/image.jpg)
+  file: @file(fixtures/sample.png)
   parent_id: 
   name: 
 }
@@ -23,6 +23,20 @@ body:multipart-form {
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+tests {
+  test("returns create success or expected client error", function () {
+    // 400/422 when sample @file path is missing; still validates error vs crash
+    expect(res.getStatus()).to.be.oneOf([201, 400, 401, 403, 422]);
+  });
+
+  test("201 body has file data", function () {
+    if (res.getStatus() !== 201) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id");
+  });
 }
 
 docs {
@@ -34,5 +48,5 @@ docs {
   
   Multipart field `file` (required). Optional `parent_id`, `name`.
   
-  Replace the `@file(...)` path with a local file before sending.
+  Ships with `@file(fixtures/sample.png)` (1×1 PNG) so collection runs do not ENOENT. Replace with a real asset when uploading for real.
 }

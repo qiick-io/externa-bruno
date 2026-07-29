@@ -4,6 +4,10 @@ meta {
   seq: 7
 }
 
+vars:pre-request {
+  file_id: 1
+}
+
 delete {
   url: {{base_url}}/api/v1/files/{{file_id}}
   body: none
@@ -17,6 +21,12 @@ headers {
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+tests {
+  test("returns 204 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([204, 401, 403, 404]);
+  });
 }
 
 docs {

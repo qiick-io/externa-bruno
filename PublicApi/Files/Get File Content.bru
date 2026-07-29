@@ -4,6 +4,10 @@ meta {
   seq: 3
 }
 
+vars:pre-request {
+  file_id: 1
+}
+
 get {
   url: {{base_url}}/api/v1/files/{{file_id}}/content
   body: none
@@ -17,6 +21,18 @@ headers {
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+tests {
+  test("returns 200 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404]);
+  });
+
+  test("200 response has a body", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body == null || body === "").to.equal(false);
+  });
 }
 
 docs {

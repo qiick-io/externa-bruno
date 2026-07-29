@@ -4,6 +4,10 @@ meta {
   seq: 1
 }
 
+vars:pre-request {
+  collection_slug: posts
+}
+
 post {
   url: {{base_url}}/api/graphql
   body: json
@@ -23,6 +27,27 @@ body:json {
       "filter": { "status": { "_eq": "published" } }
     }
   }
+}
+
+tests {
+  test("returns HTTP 200 or auth error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403]);
+  });
+
+  test("GraphQL payload has data or errors when HTTP 200", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body.data != null || body.errors != null).to.equal(true);
+  });
+
+  test("items connection shape when data present", function () {
+    if (res.getStatus() !== 200) return;
+    const items = res.getBody().data && res.getBody().data.items;
+    if (!items) return;
+    expect(items).to.have.property("data").that.is.an("array");
+    expect(items).to.have.property("meta").that.is.an("object");
+  });
 }
 
 docs {

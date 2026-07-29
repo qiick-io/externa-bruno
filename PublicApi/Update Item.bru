@@ -4,6 +4,11 @@ meta {
   seq: 7
 }
 
+vars:pre-request {
+  collection_slug: posts
+  item_id: 1
+}
+
 patch {
   url: {{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}
   body: json
@@ -24,6 +29,19 @@ body:json {
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+tests {
+  test("returns update success or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404, 422]);
+  });
+
+  test("200 body has updated item shape", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id", "data");
+  });
 }
 
 docs {

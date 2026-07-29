@@ -4,6 +4,10 @@ meta {
   seq: 2
 }
 
+vars:pre-request {
+  file_id: 1
+}
+
 get {
   url: {{base_url}}/api/v1/files/{{file_id}}
   body: none
@@ -17,6 +21,19 @@ headers {
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+tests {
+  test("returns 200 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404]);
+  });
+
+  test("200 body has file metadata shape", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id");
+  });
 }
 
 docs {

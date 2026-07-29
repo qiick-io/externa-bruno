@@ -4,8 +4,13 @@ meta {
   seq: 6
 }
 
+vars:pre-request {
+  collection_slug: posts
+  include: files,users
+}
+
 get {
-  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items?filter[title][_contains]=hello&page=1&per_page=15
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items?filter[title][_contains]=hello&page=1&per_page=15&include={{include}}
   body: none
   auth: inherit
 }
@@ -14,13 +19,31 @@ params:query {
   filter[title][_contains]: hello
   page: 1
   per_page: 15
+  include: {{include}}
 }
 
 headers {
   Accept: application/json
 }
 
+tests {
+  test("returns 200 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404]);
+  });
+
+  test("200 body is paginated list", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("array");
+    expect(body).to.have.property("meta").that.is.an("object");
+    expect(body.meta).to.include.keys("current_page", "per_page", "total");
+  });
+}
+
 docs {
   # Advanced filter — contains
+
   Explicit `_contains`. Plain `filter[title]=hello` is the same (backward compatible).
+
+  Request var `include` defaults to `files` (same as **List Items**).
 }

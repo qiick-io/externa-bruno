@@ -19,6 +19,20 @@ settings {
   timeout: 0
 }
 
+tests {
+  test("returns 200 or auth error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403]);
+  });
+
+  test("200 body is paginated file list", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("array");
+    expect(body).to.have.property("meta").that.is.an("object");
+    expect(body.meta).to.include.keys("current_page", "per_page", "total");
+  });
+}
+
 docs {
   # List Files
   

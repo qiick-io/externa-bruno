@@ -4,6 +4,11 @@ meta {
   seq: 8
 }
 
+vars:pre-request {
+  collection_slug: posts
+  item_id: 1
+}
+
 delete {
   url: {{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}
   body: none
@@ -17,6 +22,12 @@ headers {
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+tests {
+  test("returns 204 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([204, 401, 403, 404]);
+  });
 }
 
 docs {

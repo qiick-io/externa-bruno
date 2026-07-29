@@ -4,6 +4,10 @@ meta {
   seq: 7
 }
 
+vars:pre-request {
+  collection_slug: posts
+}
+
 post {
   url: {{base_url}}/api/v1/collections/{{collection_slug}}/items
   body: json
@@ -35,6 +39,19 @@ body:json {
       ]
     }
   }
+}
+
+tests {
+  test("returns create success or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([201, 401, 403, 404, 422]);
+  });
+
+  test("201 body has created item shape", function () {
+    if (res.getStatus() !== 201) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id", "data");
+  });
 }
 
 docs {
