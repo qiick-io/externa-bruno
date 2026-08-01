@@ -24,6 +24,7 @@ docs {
   Typical **`public`** role: Read ✓, Read private ✕.
   
   Item expanders (image/file/files): private without `read_private` → `null` / omit (no id leak).
+  Public file without `read` + `include=files` → `{ "id": N, "access": "denied" }` (no URLs). Grant Files → Read on the role.
   
   Shared env: `base_url`, `api_key`. Per-request file targets use each request's local `file_id`.
 }

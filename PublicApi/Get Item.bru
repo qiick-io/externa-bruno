@@ -84,6 +84,7 @@ docs {
   | include | CSV expand (default `files,users`). Try `files,users` or relation field names |
   
   Optional query: `locale`, `include_all_translations`. Without `include=files`, media fields stay as raw IDs.
+  With `include=files` but role lacks Files → Read: public file fields return `{ "id": N, "access": "denied" }` (no `url`).
   
   ---
   
