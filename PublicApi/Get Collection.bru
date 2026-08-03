@@ -1,0 +1,104 @@
+meta {
+  name: Get Collection
+  type: http
+  seq: 3
+}
+
+vars:pre-request {
+  collection_slug: posts
+}
+
+get {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns 200 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404]);
+  });
+
+  test("200 body has collection data shape", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id", "name", "slug", "fields");
+    expect(body.data.fields).to.be.an("array");
+  });
+}
+
+docs {
+  # Get Collection
+  
+  Returns one collection by slug, including a field schema summary.
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/collections/{{collection_slug}}`  
+  **Auth:** Bearer inherit  
+  **Permission:** `read` on that collection
+  
+  ---
+  
+  ## Request vars
+  
+  | Variable | Example |
+  |----------|---------|
+  | collection_slug | `posts` |
+  
+  ---
+  
+  ## Response (200)
+  
+  ```json
+  {
+    "data": {
+      "id": 1,
+      "name": "Posts",
+      "slug": "posts",
+      "is_singleton": false,
+      "fields": [
+        {
+          "id": 10,
+          "name": "title",
+          "type": "text",
+          "settings": {}
+        },
+        {
+          "id": 11,
+          "name": "content",
+          "type": "blocks",
+          "settings": {
+            "block_types": [
+              {
+                "key": "rich_text",
+                "label": "Rich text",
+                "fields": [
+                  { "name": "title", "type": "string", "translatable": true, "settings": {} }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+  ```
+  
+  ## Errors
+  
+  | Status | Cause |
+  |--------|-------|
+  | 403 | Role lacks `read` |
+  | 404 | Unknown slug |
+  | 401 | Bad API key |
+}

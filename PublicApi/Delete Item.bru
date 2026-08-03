@@ -1,0 +1,61 @@
+meta {
+  name: Delete Item
+  type: http
+  seq: 8
+}
+
+vars:pre-request {
+  collection_slug: posts
+  item_id: 1
+}
+
+delete {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns 204 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([204, 401, 403, 404]);
+  });
+}
+
+docs {
+  # Delete Item
+  
+  Deletes an item (soft-delete if the model uses SoftDeletes).
+  
+  **Method:** DELETE  
+  **Endpoint:** `{{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}`  
+  **Auth:** Bearer inherit  
+  **Permission:** `delete`
+  
+  ---
+  
+  ## Response (204)
+  
+  Empty body.
+  
+  ## Errors
+  
+  | Status | Cause |
+  |--------|-------|
+  | 403 | No `delete` grant (common for public role) |
+  | 404 | Unknown collection or item |
+  
+  ---
+  
+  ## Safety
+  
+  Prefer a dedicated test item. Confirm the API key role has Delete ✓ before expecting 204.
+}

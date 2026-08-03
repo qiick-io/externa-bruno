@@ -1,0 +1,67 @@
+meta {
+  name: Create Item With Junction Meta
+  type: http
+  seq: 7
+}
+
+vars:pre-request {
+  collection_slug: posts
+}
+
+post {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "data": {
+      "title": "M2M junction example",
+      "related_tags": [
+        {
+          "related_item_id": 1,
+          "meta": {
+            "sort": 1
+          }
+        },
+        {
+          "related_item_id": 2,
+          "meta": {
+            "sort": 2
+          }
+        }
+      ]
+    }
+  }
+}
+
+tests {
+  test("returns create success or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([201, 401, 403, 404, 422]);
+  });
+
+  test("201 body has created item shape", function () {
+    if (res.getStatus() !== 201) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id", "data");
+  });
+}
+
+docs {
+  # Create item with M2M junction metadata
+
+  Many-to-many fields store `{ related_item_id, meta }` objects.
+  Bare ints are still accepted and normalized to `meta: {}`.
+
+  Configure `settings.junction_fields` on the field for the meta mini-schema, e.g.
+  `[{"name":"sort","type":"number"}]`.
+
+  Replace `related_tags` / ids with fields that exist on `{{collection_slug}}`.
+}

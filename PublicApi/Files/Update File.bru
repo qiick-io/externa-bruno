@@ -1,0 +1,57 @@
+meta {
+  name: Update File
+  type: http
+  seq: 6
+}
+
+vars:pre-request {
+  file_id: 1
+}
+
+patch {
+  url: {{base_url}}/api/v1/files/{{file_id}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Hero",
+    "description": "Updated via Public CMS API",
+    "focal_point_x": 0.35,
+    "focal_point_y": 0.6
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns update success or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404, 422]);
+  });
+
+  test("200 body has file data", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id");
+  });
+}
+
+docs {
+  # Update File
+  
+  **Method:** PATCH  
+  **Endpoint:** `{{base_url}}/api/v1/files/{{file_id}}`  
+  **Permission:** `file:update`
+  
+  Metadata fields: `title`, `description`, `location`, `download_name`, `focal_point_x|y` (0–1), `name`.
+}

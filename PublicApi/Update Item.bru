@@ -1,0 +1,101 @@
+meta {
+  name: Update Item
+  type: http
+  seq: 7
+}
+
+vars:pre-request {
+  collection_slug: posts
+  item_id: 1
+}
+
+patch {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "data": {}
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns update success or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404, 422]);
+  });
+
+  test("200 body has updated item shape", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id", "data");
+  });
+}
+
+docs {
+  # Update Item
+  
+  Partial update of field values on an existing item.
+  
+  **Method:** PATCH  
+  **Endpoint:** `{{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}`  
+  **Auth:** Bearer inherit  
+  **Permission:** `update`
+  
+  ---
+  
+  ## Body
+  
+  ```json
+  {
+    "data": {
+      "title": "Updated title"
+    }
+  }
+  ```
+
+  Blocks field example:
+
+  ```json
+  {
+    "data": {
+      "content": [
+        {
+          "id": "11111111-1111-1111-1111-111111111111",
+          "type": "media",
+          "data": {
+            "image": 12,
+            "caption": { "en": "Hero image" }
+          }
+        }
+      ]
+    }
+  }
+  ```
+  
+  ---
+  
+  ## Response (200)
+  
+  Updated item payload.
+  
+  ## Errors
+  
+  | Status | Cause |
+  |--------|-------|
+  | 403 | No `update` grant |
+  | 404 | Unknown collection or item |
+  | 422 | Validation failed |
+}

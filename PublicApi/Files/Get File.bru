@@ -1,0 +1,53 @@
+meta {
+  name: Get File
+  type: http
+  seq: 2
+}
+
+vars:pre-request {
+  file_id: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/files/{{file_id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns 200 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404]);
+  });
+
+  test("200 body has file metadata shape", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id");
+  });
+}
+
+docs {
+  # Get File
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/files/{{file_id}}`  
+  **Permission:** `file:read` (+ `file:read_private` when effective access is private)
+  
+  Returns metadata including `access` (effective), `url` (content), and `transforms` preset map.
+  
+  | Case | Expected |
+  | --- | --- |
+  | Public file + `read` | **200** |
+  | Private file + `read` only (typical `public` role) | **403** |
+  | Private file + `read` + `read_private` | **200** |
+}

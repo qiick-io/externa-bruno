@@ -1,0 +1,52 @@
+meta {
+  name: List Files
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/files?search=&parent_id=&page=1&per_page=15
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns 200 or auth error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403]);
+  });
+
+  test("200 body is paginated file list", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("array");
+    expect(body).to.have.property("meta").that.is.an("object");
+    expect(body.meta).to.include.keys("current_page", "per_page", "total");
+  });
+}
+
+docs {
+  # List Files
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/files`  
+  **Permission:** `file:read` (private rows also need `file:read_private`)
+  
+  Query: `parent_id`, `search`, `page`, `per_page` (1–100).
+  
+  Search uses the same server-side `LOWER(name|path|title) LIKE` logic as the admin file manager.
+  
+  | Case | Expected |
+  | --- | --- |
+  | Public rows + `read` | Included in `data` |
+  | Private rows + `read` only (typical `public` role) | **Omitted** (still **200**) |
+  | Private rows + `read_private` | Included |
+}

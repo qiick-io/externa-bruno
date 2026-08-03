@@ -1,0 +1,103 @@
+meta {
+  name: Verify Webhook Signature
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/__webhook_receiver_docs_only__
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Externa-Event-Id: evt_01example
+  X-Externa-Timestamp: 1721822400
+  X-Externa-Signature: sha256=REPLACE_WITH_HMAC
+}
+
+body:json {
+  {
+    "id": "evt_01example",
+    "type": "item.updated",
+    "created_at": "2026-07-24T12:00:00Z",
+    "data": {
+      "collection_id": 1,
+      "collection_slug": "posts",
+      "item_id": 42
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("placeholder URL is not an Externa route (404)", function () {
+    // Docs-only helper: default path does not exist on externa-core.
+    // After you point the URL at your receiver, loosen/remove this assertion.
+    expect(res.getStatus()).to.equal(404);
+  });
+}
+
+docs {
+  # Verify webhook signature
+  
+  Externa **outbound** webhooks are Externa → **your** URL. There is no Externa route to call for receiving them.
+  
+  This request is a **docs helper**: sample envelope + signing notes. It is **not** a Public API endpoint.
+  
+  ## Placeholder URL (intentional)
+  
+  Default URL: `{{base_url}}/__webhook_receiver_docs_only__`
+  
+  That path does **not** exist on externa-core. Sending as-is returns **404**. Replace the URL with:
+  
+  - your local receiver, or
+  - a temporary https://webhook.site URL
+  
+  then POST this sample to practice verifying `X-Externa-Signature`.
+  
+  Full docs: [Outbound webhooks](https://github.com/qiick-io/externa-docs/blob/main/src/app/docs/webhooks/page.md) (`/docs/webhooks`)
+  
+  ## Headers Externa sends
+  
+  | Header | Meaning |
+  |--------|---------|
+  | `X-Externa-Signature` | `sha256=` + HMAC-SHA256(raw body, project webhook secret) |
+  | `X-Externa-Event-Id` | Event id (`evt_...`) |
+  | `X-Externa-Timestamp` | Unix seconds at delivery time |
+  | `User-Agent` | `Externa-Webhooks/1.0` |
+  
+  ## Sign / verify (Node)
+  
+  Sign the **exact raw request body bytes** (not a re-serialized JSON object):
+  
+      const crypto = require('crypto')
+      const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
+      crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(header))
+  
+  1. Set `webhook_secret` (collection `.env` → `EXTERNA_WEBHOOK_SECRET`) to the Project settings secret  
+  2. Compute `expected` over this request’s raw JSON body  
+  3. Paste it into `X-Externa-Signature` above  
+  4. Change the URL to your receiver and Send  
+  
+  ## Env vars
+  
+  | Variable | Purpose |
+  |----------|---------|
+  | `webhook_secret` | Same secret as Settings → Project → webhook secret |
+  
+  ## Real delivery from Externa (preferred smoke test)
+  
+  1. Settings → Project → Webhook URL + Generate secret → Save  
+  2. Run a queue worker  
+  3. **Send test event** (`ping`) or create/update an item  
+  4. Inspect the POST on webhook.site / your receiver  
+  
+  Events: `item.*`, `file.*`, `collection.*`, `ping` — see externa-docs `/docs/webhooks`.
+}

@@ -1,5 +1,6 @@
 # Secrets
 .env*
+!.env.sample
 
 # Dependencies
 node_modules
@@ -7,3 +8,9 @@ node_modules
 # OS files
 .DS_Store
 Thumbs.db
+
+# Graphify (generated knowledge graph — rebuild with `graphify update .`)
+/graphify-out/
+
+# Cursor local rules / IDE
+.cursor/

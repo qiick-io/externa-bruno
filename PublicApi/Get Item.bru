@@ -1,0 +1,127 @@
+meta {
+  name: Get Item
+  type: http
+  seq: 5
+}
+
+vars:pre-request {
+  collection_slug: posts
+  item_id: 1
+  include: files,users
+}
+
+get {
+  url: {{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}?include={{include}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  include: {{include}}
+  ~locale: 
+  ~include_all_translations: 
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns 200 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404]);
+  });
+
+  test("200 body has item data shape", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("data").that.is.an("object");
+    expect(body.data).to.include.keys("id", "data");
+    expect(body.data.data).to.be.an("object");
+  });
+
+  test("include=files: expanded file objects expose url", function () {
+    if (res.getStatus() !== 200) return;
+    function assertExpandedFiles(val) {
+      if (val == null || typeof val !== "object") return;
+      if (Array.isArray(val)) {
+        val.forEach(assertExpandedFiles);
+        return;
+      }
+      if (typeof val.filename === "string" && typeof val.id === "number") {
+        expect(val).to.have.property("url").that.is.a("string").and.not.empty;
+      }
+      Object.keys(val).forEach(function (k) {
+        assertExpandedFiles(val[k]);
+      });
+    }
+    assertExpandedFiles(res.getBody().data.data);
+  });
+}
+
+docs {
+  # Get Item
+  
+  Single item by id.
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/collections/{{collection_slug}}/items/{{item_id}}`  
+  **Auth:** Bearer inherit  
+  **Permission:** `read`
+  
+  ---
+  
+  ## Request vars
+  
+  | Variable | Purpose |
+  |----------|---------|
+  | collection_slug | Collection |
+  | item_id | Item primary key |
+  | include | CSV expand (default `files,users`). Try `files,users` or relation field names |
+  
+  Optional query: `locale`, `include_all_translations`. Without `include=files`, media fields stay as raw IDs.
+  With `include=files` but role lacks Files → Read: public file fields return `{ "id": N, "access": "denied" }` (no `url`).
+  
+  ---
+  
+  ## Response (200) with `include=files`
+  
+  ```json
+  {
+    "data": {
+      "id": 1,
+      "collection_id": 3,
+      "data": {
+        "title": "Hello",
+        "content": [
+          {
+            "id": "11111111-1111-1111-1111-111111111111",
+            "type": "media",
+            "data": {
+              "image": {
+                "id": 12,
+                "filename": "hero.jpg",
+                "url": "https://example.test/api/v1/files/12/content"
+              },
+              "caption": { "en": "Hero image" }
+            }
+          }
+        ]
+      },
+      "created_at": "2026-07-20T12:00:00+00:00",
+      "updated_at": "2026-07-20T12:00:00+00:00"
+    }
+  }
+  ```
+  
+  ## Errors
+  
+  | Status | Cause |
+  |--------|-------|
+  | 403 | No `read` |
+  | 404 | Unknown collection or item |
+}

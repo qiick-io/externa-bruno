@@ -1,0 +1,39 @@
+meta {
+  name: Apply Articles Collection Pack
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/collections/packs/articles
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  X-Requested-With: XMLHttpRequest
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Apply Articles Collection Pack
+
+  Session-auth admin route (Inertia). Applies the `articles` collection pack:
+  auto-creates `seo` + `categories` if missing, then `articles` with fields and
+  M2O relations (`category`, `seo`). Idempotent on existing slugs.
+
+  Optional JSON/form body: `name`, `slug` overrides for the articles collection.
+
+  **Method:** POST  
+  **Endpoint:** `{{base_url}}/collections/packs/articles`  
+  **Permission:** `can-create-collections`
+
+  Other pack keys: `seo`, `categories`, `pages`, `products`.
+
+  Response: redirect to Fields index of the target collection with flash success.
+}

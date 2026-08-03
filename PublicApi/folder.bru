@@ -1,0 +1,56 @@
+meta {
+  name: PublicApi
+  seq: 1
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{api_key}}
+}
+
+docs {
+  # PublicApi
+  
+  Headless Externa Public CMS API under `/api/v1`.
+  
+  ## Auth (folder default)
+  
+  Bearer token `{{api_key}}` (Admin → API Keys). Requests with `auth: inherit` use this.
+  
+  **List Collections Anonymous** overrides with `auth: none` to hit the system role `public`.
+  
+  ## Permissions
+  
+  Grants live on the role (**Collection access** + **Files access**), not on Spatie admin permissions:
+  
+  - Anonymous → role `public`
+  - API key → role linked to the key
+  
+  Actions: `create` | `read` | `update` | `delete`. Missing grant = **deny** (403).
+  
+  Subfolder **Files** covers `/api/v1/files*` (global file CRUD).
+  
+  ## Shared env vars
+  
+  | Variable | Purpose |
+  |----------|---------|
+  | base_url | App origin, e.g. `http://externa-core.test` |
+  | api_key | Secret `ek_…` |
+  
+  Request-specific values (`collection_slug`, `item_id`, `file_id`, `include`) live in each request’s `vars:pre-request` block — not bare `vars { }` (fragile in Bruno).
+  
+  ## Typical site reads (avoid N+1)
+  
+  Item list/show are **lean by default**. Prefer one request with expansions:
+  
+  | Goal | `include` value |
+  |------|-----------------|
+  | Slim / IDs only | omit or empty |
+  | Media + editors | `files,users` (Bruno default on list/get) |
+  | + relations | `files,users,author,categories` (real field names) |
+  
+  Docs site: externa-docs → Public CMS API.
+}

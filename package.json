@@ -1,0 +1,6 @@
+{
+  "name": "externa-bruno",
+  "version": "1.0.0-beta.1",
+  "private": true,
+  "description": "Bruno API collection for Externa Public CMS API — targets externa-core 1.0.0-beta.1"
+}

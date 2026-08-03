@@ -1,0 +1,41 @@
+meta {
+  name: Apply SEO Inline Field Pack
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/collections/{{collection_id}}/field-packs/seo_inline
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  X-Requested-With: XMLHttpRequest
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Apply SEO Inline Field Pack
+
+  Session-auth admin route (Inertia). Applies the registered `seo_inline` field pack:
+  creates missing denormalized `seo_*` fields, skips existing names.
+
+  Prefer the SEO **collection** pack (`POST /collections/packs/seo`) + M2O for
+  Articles/Pages/Products.
+
+  **Method:** POST  
+  **Endpoint:** `{{base_url}}/collections/{{collection_id}}/field-packs/seo_inline`  
+  **Permission:** `can-edit-collections`
+
+  Set `collection_id` in the environment. Requires a logged-in admin session
+  cookie (not Public API Bearer).
+
+  Response: redirect to Fields index with flash success
+  (`N field(s) created, M skipped.`).
+}

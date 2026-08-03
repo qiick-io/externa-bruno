@@ -1,0 +1,53 @@
+meta {
+  name: Get File Transform
+  type: http
+  seq: 4
+}
+
+vars:pre-request {
+  file_id: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/files/{{file_id}}/transforms/size-64
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: image/*
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns 200 or expected client error", function () {
+    // 404 when file missing or transform key unknown
+    expect(res.getStatus()).to.be.oneOf([200, 401, 403, 404]);
+  });
+
+  test("200 response has a body", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body == null || body === "").to.equal(false);
+  });
+}
+
+docs {
+  # Get File Transform
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/files/{{file_id}}/transforms/{key}`  
+  **Permission:** `file:read` (+ `file:read_private` when effective access is private)
+  
+  `{key}` is a project preset (e.g. `thumbnail`) or legacy `size-{n}`.
+  
+  | Case | Expected |
+  | --- | --- |
+  | Public file + `read` | **200** |
+  | Private file + `read` only (typical `public` role) | **403** |
+  | Private file + `read` + `read_private` | **200** |
+}

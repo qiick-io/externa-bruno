@@ -1,0 +1,40 @@
+meta {
+  name: Delete File
+  type: http
+  seq: 7
+}
+
+vars:pre-request {
+  file_id: 1
+}
+
+delete {
+  url: {{base_url}}/api/v1/files/{{file_id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns 204 or expected client error", function () {
+    expect(res.getStatus()).to.be.oneOf([204, 401, 403, 404]);
+  });
+}
+
+docs {
+  # Delete File
+  
+  **Method:** DELETE  
+  **Endpoint:** `{{base_url}}/api/v1/files/{{file_id}}`  
+  **Permission:** `file:delete`
+  
+  Soft-deletes the file. Success: **204**.
+}

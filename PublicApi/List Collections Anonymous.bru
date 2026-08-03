@@ -1,0 +1,93 @@
+meta {
+  name: List Collections Anonymous
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/collections
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns 200 or origin-gate 403", function () {
+    // Empty allowlist → 200. Non-empty allowlist without Origin/key → 403.
+    expect(res.getStatus()).to.be.oneOf([200, 403]);
+  });
+
+  test("200 body has data array", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("data").that.is.an("array");
+  });
+
+  test("each collection has id name slug when present", function () {
+    if (res.getStatus() !== 200) return;
+    (res.getBody().data || []).forEach(function (row) {
+      expect(row).to.include.keys("id", "name", "slug");
+    });
+  });
+
+  test("403 origin gate mentions Origin or API key", function () {
+    if (res.getStatus() !== 403) return;
+    const body = res.getBody();
+    const msg = (body && (body.message || body.error)) || JSON.stringify(body);
+    expect(String(msg)).to.match(/Origin|API key/i);
+  });
+}
+
+docs {
+  # List Collections Anonymous
+  
+  Lists collections the **public** role may **read**. No Bearer token.
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/collections`  
+  **Auth:** none → actor `public`  
+  **Permission:** implicit — only collections with `read` grant appear
+  
+  ---
+  
+  ## Setup
+  
+  1. Roles → **public** → Collection access → enable **Read** (✓) on desired collections  
+  2. Save  
+  3. Send this request (leave `api_key` empty)
+  
+  ---
+  
+  ## Response (200)
+  
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "name": "Posts",
+        "slug": "posts",
+        "is_singleton": false
+      }
+    ]
+  }
+  ```
+  
+  With no public read grants: `"data": []` (still 200, not 403).
+  
+  ---
+  
+  ## Notes
+  
+  - Does not use folder Bearer auth (`auth: none`).
+  - Compare with **List Collections** (same path, API key role).
+}

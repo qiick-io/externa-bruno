@@ -1,0 +1,11 @@
+vars {
+  @description('No trailing slash')
+  base_url: http://externa-core.test
+  @description('API key (ek_...). Prefer collection .env EXTERNA_API_KEY. Or paste in Bruno, then mark Secret after it is non-empty.')
+  api_key: {{process.env.EXTERNA_API_KEY}}
+  @description('Webhook HMAC secret. Prefer .env EXTERNA_WEBHOOK_SECRET.')
+  webhook_secret: {{process.env.EXTERNA_WEBHOOK_SECRET}}
+}
+vars:secret [
+  api_key
+]
