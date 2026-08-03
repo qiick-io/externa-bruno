@@ -11,3 +11,6 @@ Thumbs.db
 
 # Graphify (generated knowledge graph — rebuild with `graphify update .`)
 /graphify-out/
+
+# Cursor local rules / IDE
+.cursor/

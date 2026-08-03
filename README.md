@@ -11,6 +11,35 @@ Docs: [Outbound webhooks](https://github.com/qiick-io/externa-docs/blob/main/src
 
 `package.json` currently declares version `1.0.0-beta.1`. `bruno.json` `"version": "1"` is Bruno's collection format version, not the package semver.
 
+## Contents
+
+- [Prerequisites](#prerequisites)
+- [Open in Bruno](#open-in-bruno)
+- [Secrets](#secrets)
+- [Tests](#tests)
+- [Environment and auth](#environment-and-auth)
+- [First successful request](#first-successful-request)
+- [Staging / remote](#staging--remote)
+- [Request vars cheat sheet](#request-vars-cheat-sheet)
+- [Collection structure](#collection-structure)
+- [Public API: collections and items](#public-api-collections-and-items)
+- [Public API: files](#public-api-files)
+- [Public API: GraphQL](#public-api-graphql)
+- [Webhooks helper](#webhooks-helper)
+- [Admin routes](#admin-routes)
+- [Status codes seen in docs](#status-codes-seen-in-docs)
+- [Client types](#client-types)
+
+## Prerequisites
+
+Before using this collection:
+
+1. **Externa-core running** at your `base_url` (default: `http://externa-core.test` via Herd)
+2. **API key + role** (optional for anonymous public requests; required when origin allowlist is active):
+   - Admin → Settings → Access → **API Keys**
+   - Create a role with Collection access grants (or use `public` role for anonymous)
+   - Issue key (`ek_...`) — shown once; store it
+
 ## Open in Bruno
 
 1. Install [Bruno](https://www.usebruno.com/).
@@ -30,20 +59,19 @@ Docs: [Outbound webhooks](https://github.com/qiick-io/externa-docs/blob/main/src
 
 See [DotEnv File](https://docs.usebruno.com/secrets-management/dotenv-file).
 
-### Official `vars:secret` (UI Secrets tab) — why it is not shipped empty
+### Official `vars:secret` (UI Secrets tab)
 
-Per [Secret Variables](https://docs.usebruno.com/secrets-management/secret-variables), marking a var as secret writes only the **name** into the env file:
+Per [Secret Variables](https://docs.usebruno.com/secrets-management/secret-variables), marking a var as secret writes only the **name** into the env file (`Local.bru` ships with `api_key` marked secret):
 
 ```bru
 vars:secret [
   api_key
-  webhook_secret
 ]
 ```
 
-Values live in Bruno’s local encrypted store (Secrets tab from v4+), not in the `.bru` file. That is correct — but **empty** secret entries have historically made environments disappear on load (Bruno decrypt / empty-secret bugs). An earlier attempt with an empty `vars:secret` block hid **Local** in the UI.
+Values live in Bruno's local encrypted store (Secrets tab from v4+), not in the `.bru` file. If you prefer the Secrets tab: paste a non-empty value in the env UI first, then check **Secret**; Bruno may rewrite `Local.bru` locally — keep those secret values out of commits.
 
-So this repo does **not** commit an empty `vars:secret` template. If you prefer the Secrets tab: paste non-empty values in the env UI first, then check **Secret**; Bruno may rewrite `Local.bru` locally — keep those secret values out of commits.
+Note: `webhook_secret` is **not** marked secret by default (it's read from `.env` only). If you want to mark it secret in your local copy, follow the same paste-then-mark workflow.
 
 ## Tests
 
@@ -115,6 +143,40 @@ Externa can restrict the Public API with project setting **`public_api_allowed_o
 
 Matching browser Origin alone still does not bypass collection/file grants. Origin is spoofable — for strong protection use key + optional IP allowlist. Full docs in **externa-docs**: [`/docs/public-cms-api-types#origin-allowlist`](https://github.com/qiick-io/externa-docs/blob/main/src/app/docs/public-cms-api-types/page.md) (Origin allowlist section). Client TypeScript / OpenAPI / JSON Schema: same docs page + `public/client-types/*`.
 
+## First successful request
+
+1. Copy `.env.sample` → `.env` in collection root (already gitignored).
+2. Set `EXTERNA_API_KEY=ek_...` (from Admin → API Keys).
+3. Select **Local** environment in Bruno.
+4. Open **PublicApi** → **List Collections** → send → expect `200` with `data` array.
+5. Edit request vars (`vars:pre-request` in each request) to match your data:
+   - `collection_slug` (default: `posts`)
+   - `item_id`, `file_id` (replace with real IDs from your externa-core DB)
+
+## Staging / remote
+
+To test against staging or production:
+
+1. Duplicate **Local** environment in Bruno (right-click → Duplicate).
+2. Rename (e.g. `Staging`) and change `base_url` (no trailing slash).
+3. Add the matching API key to `.env` as `EXTERNA_API_KEY` (or use a separate env var + Bruno var override).
+
+## Request vars cheat sheet
+
+Request-specific values live in **`vars:pre-request`** blocks inside each `.bru` file (not in `environments/Local.bru`).
+
+Common request vars and typical defaults:
+
+| Var                 | Used in                           | Default / notes                       |
+| ------------------- | --------------------------------- | ------------------------------------- |
+| `collection_slug`   | Most item endpoints               | `posts`                               |
+| `item_id`           | Get / Update / Delete Item        | Replace with real ID                  |
+| `file_id`           | File endpoints                    | Replace with real ID                  |
+| `include`           | List / Get Item                   | `files,users` (opt-in file expansion) |
+| `collection_id`     | Admin field pack routes           | Not in Local; set manually on request |
+
+Shared environment vars (`base_url`, `api_key`, `webhook_secret`) live in `environments/Local.bru`.
+
 ### Local environment notes
 
 - `base_url` defaults to `http://externa-core.test` (Herd). No trailing slash.
@@ -129,6 +191,18 @@ Matching browser Origin alone still does not bypass collection/file grants. Orig
 | `PublicApi/List Collections Anonymous` | `auth: none` | Uses the `public` role |
 | `PublicApi/Webhooks/Verify Webhook Signature` | `auth: none` | Docs helper only — placeholder URL 404s on externa-core; point at **your** receiver |
 | `Admin/` | request says `auth: inherit`, docs require session cookie | Intended for a logged-in admin browser/session, not Public API Bearer auth |
+
+#### Using Admin routes in Bruno
+
+Admin routes (`Admin/Apply SEO Inline Field Pack`, etc.) require a **session cookie** from a logged-in user with the appropriate permissions (e.g. `can-edit-collections`).
+
+1. Sign in to externa-core admin in your browser (same `base_url`).
+2. Open DevTools → Application → Cookies → copy the session cookie name and value.
+3. In Bruno, open an Admin request → **Headers** tab → add:
+   ```
+   Cookie: <session_cookie_name>=<value>
+   ```
+4. Send the request.
 
 ### Permission model summary
 
@@ -155,6 +229,8 @@ The collection contains 28 request files:
 - `PublicApi/GraphQL/`: 5 requests
 - `PublicApi/Webhooks/`: 1 request
 - `Admin/`: 2 requests
+
+Test fixtures: `fixtures/sample.png` is tracked in git for upload smoke tests.
 
 ## Public API: collections and items
 
