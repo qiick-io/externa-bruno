@@ -1,0 +1,83 @@
+meta {
+  name: Get OpenAPI Spec
+  type: http
+  seq: 0
+}
+
+get {
+  url: {{base_url}}/api/v1/openapi.json
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("body is OpenAPI 3 document", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("openapi").that.equals("3.0.3");
+    expect(body).to.have.nested.property("info.title").that.equals("Externa Public CMS API");
+    expect(body).to.have.property("paths").that.is.an("object");
+    expect(body).to.have.nested.property("components.securitySchemes").that.is.an("object");
+  });
+
+  test("lists collections GET operation", function () {
+    const body = res.getBody();
+    expect(body.paths).to.have.nested.property("/collections.get.operationId", "listCollections");
+  });
+}
+
+docs {
+  # Get OpenAPI Spec
+  
+  Machine-readable **OpenAPI 3** contract for the Public CMS API.
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/api/v1/openapi.json`  
+  **Auth:** none (no API key, no Origin gate)  
+  **Throttle:** yes (`throttle:api` only)
+  
+  ---
+  
+  ## Setup
+  
+  1. Set env `base_url` (e.g. `http://externa-core.test`)  
+  2. Send — leave `api_key` empty
+  
+  Requires externa-core with OpenAPI export (core **#159** / Public CMS GA).
+  
+  ---
+  
+  ## Response (200)
+  
+  JSON OpenAPI 3.0.3 document (`Content-Type: application/json`).
+  
+  Key fields:
+  
+  | Path | Example |
+  |------|---------|
+  | `openapi` | `"3.0.3"` |
+  | `info.title` | `"Externa Public CMS API"` |
+  | `paths` | path → operations |
+  | `components.securitySchemes` | Bearer / etc. |
+  
+  ---
+  
+  ## Notes
+  
+  - Does not use folder Bearer auth (`auth: none`).
+  - Works even when project Origin allowlist is non-empty (unlike anonymous collection list).
+  - Static YAML twin lives on externa-docs (`public/client-types/openapi.yaml`).
+}

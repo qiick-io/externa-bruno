@@ -77,7 +77,7 @@ Note: `webhook_secret` is **not** marked secret by default (it's read from `.env
 
 Every Public API request that hits a real core route (plus the webhook docs helper) has a `tests { }` block (Chai via Bruno). They check status ranges and JSON shape (`data` / `meta` / GraphQL `data|errors`), and skip strict field checks when the response is a client error (missing local ids, empty DB, etc.).
 
-**List Collections Anonymous** accepts `200` or origin-gate `403`. **Verify Webhook Signature** asserts `404` on the intentional placeholder path.
+**Get OpenAPI Spec** asserts `200` + OpenAPI 3 shape (no key / Origin gate). **List Collections Anonymous** accepts `200` or origin-gate `403`. **Verify Webhook Signature** asserts `404` on the intentional placeholder path.
 
 Assert vs tests: Bruno Assert is declarative (`res.status` equals `200`) and fine for fixed happy-paths. These endpoints often need conditionals (200 vs 404, empty lists, GraphQL errors), so the collection uses tests only.
 
@@ -188,6 +188,7 @@ Shared environment vars (`base_url`, `api_key`, `webhook_secret`) live in `envir
 | Area | Auth in `.bru` files | What it means |
 | --- | --- | --- |
 | `PublicApi/` | folder-level Bearer `{{api_key}}` | Role attached to the API key |
+| `PublicApi/Get OpenAPI Spec` | `auth: none` | Public OpenAPI JSON — no key / Origin gate |
 | `PublicApi/List Collections Anonymous` | `auth: none` | Uses the `public` role |
 | `PublicApi/Webhooks/Verify Webhook Signature` | `auth: none` | Docs helper only — placeholder URL 404s on externa-core; point at **your** receiver |
 | `Admin/` | request says `auth: inherit`, docs require session cookie | Intended for a logged-in admin browser/session, not Public API Bearer auth |
@@ -222,9 +223,9 @@ Admin routes (`Admin/Apply SEO Inline Field Pack`, etc.) require a **session coo
 
 ## Collection structure
 
-The collection contains 28 request files:
+The collection contains 29 request files:
 
-- `PublicApi/`: 13 requests
+- `PublicApi/`: 14 requests
 - `PublicApi/Files/`: 7 requests
 - `PublicApi/GraphQL/`: 5 requests
 - `PublicApi/Webhooks/`: 1 request
@@ -233,6 +234,13 @@ The collection contains 28 request files:
 Test fixtures: `fixtures/sample.png` is tracked in git for upload smoke tests.
 
 ## Public API: collections and items
+
+### Get OpenAPI Spec
+- Method: `GET`
+- URL: `{{base_url}}/api/v1/openapi.json`
+- Purpose: Download the Public CMS OpenAPI 3 JSON contract.
+- Important inputs: none; `auth: none` (no API key, no Origin gate).
+- Notes: always `200` when the route exists (core OpenAPI export); works with a non-empty Origin allowlist.
 
 ### List Collections Anonymous
 - Method: `GET`
