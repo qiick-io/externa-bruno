@@ -240,7 +240,7 @@ Test fixtures: `fixtures/sample.png` is tracked in git for upload smoke tests.
 - URL: `{{base_url}}/api/v1/openapi.json`
 - Purpose: Download the Public CMS OpenAPI 3 JSON contract.
 - Important inputs: none; `auth: none` (no API key, no Origin gate).
-- Notes: always `200` when the route exists (core OpenAPI export); works with a non-empty Origin allowlist.
+- Notes: since **externa-core 1.1.0**; always `200` when the route exists; works with a non-empty Origin allowlist.
 
 ### List Collections Anonymous
 - Method: `GET`
@@ -475,4 +475,4 @@ TypeScript, OpenAPI, and JSON Schema for Public CMS responses live in **externa-
 - Page: [`public-cms-api-types`](https://github.com/qiick-io/externa-docs/blob/main/src/app/docs/public-cms-api-types/page.md) (includes Origin allowlist)
 - Artifacts: `public/client-types/types.ts`, `openapi.yaml`, `schema.json`
 
-This collection does not duplicate those files.
+This collection does not duplicate those files. Runtime OpenAPI JSON is also in Bruno as **Get OpenAPI Spec** (`GET {{base_url}}/api/v1/openapi.json`, no key; since core 1.1.0).
