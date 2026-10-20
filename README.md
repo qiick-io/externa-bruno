@@ -7,9 +7,9 @@ Bruno collection for Externa's:
 - A couple of admin-only pack routes
 - One outbound-webhook docs helper (`Verify Webhook Signature` — not an Externa route; see [Webhooks helper](#webhooks-helper))
 
-Docs: [Outbound webhooks](https://github.com/qiick-io/externa-docs/blob/main/src/app/docs/webhooks/page.md).
+Docs: [Outbound webhooks](https://docs.externa.qiick.io/docs/webhooks).
 
-`package.json` declares version **`1.0.0`** (stable). `bruno.json` `"version": "1"` is Bruno's collection format version, not the package semver; `collectionVersion` is `v1.0.0`.
+`package.json` declares version **`1.0.1`** (stable). `bruno.json` `"version": "1"` is Bruno's collection format version, not the package semver; `collectionVersion` is `v1.0.1`.
 
 ## Contents
 
@@ -130,7 +130,7 @@ Item list/show responses are **lean unless you opt in**. A frontend should almos
 | Media + editors | `files,users` | **Bruno default** on List/Get Item (+ filter list examples) |
 | Typical page | `files,users,<relations>` | List or detail with authors + linked items in one round-trip |
 
-**Breaking:** clients that expected automatic file expansion must pass `include=files`. Change the request var (e.g. `files,author,users`) — do not invent extra REST routes for expansions. Full docs: externa-docs [Expand with `include`](https://github.com/qiick-io/externa-docs/blob/main/src/app/docs/public-cms-api/page.md).
+**Breaking:** clients that expected automatic file expansion must pass `include=files`. Change the request var (e.g. `files,author,users`) — do not invent extra REST routes for expansions. Full docs: externa-docs [Expand with `include`](https://docs.externa.qiick.io/docs/public-cms-api).
 
 ### Origin allowlist (project setting)
 
@@ -141,7 +141,7 @@ Externa can restrict the Public API with project setting **`public_api_allowed_o
 | Empty (default local) | Anonymous `auth: none` requests work when the `public` role has grants; CORS from `CORS_ALLOWED_ORIGINS` |
 | Non-empty | Calls **without** an `Origin` header (normal Bruno/curl) need a **valid `api_key`**. Folder Bearer auth covers most requests; **List Collections Anonymous** will **403** (`Origin required or API key.`) unless you add a key or set a matching Origin for experiments |
 
-Matching browser Origin alone still does not bypass collection/file grants. Origin is spoofable — for strong protection use key + optional IP allowlist. Full docs in **externa-docs**: [`/docs/public-cms-api-types#origin-allowlist`](https://github.com/qiick-io/externa-docs/blob/main/src/app/docs/public-cms-api-types/page.md) (Origin allowlist section). Client TypeScript / OpenAPI / JSON Schema: same docs page + `public/client-types/*`.
+Matching browser Origin alone still does not bypass collection/file grants. Origin is spoofable — for strong protection use key + optional IP allowlist. Full docs in **externa-docs**: [`/docs/public-cms-api-types#origin-allowlist`](https://docs.externa.qiick.io/docs/public-cms-api-types) (Origin allowlist section). Client TypeScript / OpenAPI / JSON Schema: same docs page + `public/client-types/*`.
 
 ## First successful request
 
@@ -425,7 +425,7 @@ All GraphQL requests post to `{{base_url}}/api/graphql`.
 
 ## Webhooks helper
 
-Outbound webhooks are **Externa → your URL** (HMAC-signed). They are not part of the Public CMS API. Full guide: [externa-docs `/docs/webhooks`](https://github.com/qiick-io/externa-docs/blob/main/src/app/docs/webhooks/page.md).
+Outbound webhooks are **Externa → your URL** (HMAC-signed). They are not part of the Public CMS API. Full guide: [externa-docs `/docs/webhooks`](https://docs.externa.qiick.io/docs/webhooks).
 
 ### Verify Webhook Signature
 - Method: `POST`
@@ -472,7 +472,7 @@ These are admin-side routes, not Public API endpoints.
 
 TypeScript, OpenAPI, and JSON Schema for Public CMS responses live in **externa-docs** (single source of truth):
 
-- Page: [`public-cms-api-types`](https://github.com/qiick-io/externa-docs/blob/main/src/app/docs/public-cms-api-types/page.md) (includes Origin allowlist)
+- Page: [`public-cms-api-types`](https://docs.externa.qiick.io/docs/public-cms-api-types) (includes Origin allowlist)
 - Artifacts: `public/client-types/types.ts`, `openapi.yaml`, `schema.json`
 
 This collection does not duplicate those files. Runtime OpenAPI JSON is also in Bruno as **Get OpenAPI Spec** (`GET {{base_url}}/api/v1/openapi.json`, no key; since core 1.1.0).
