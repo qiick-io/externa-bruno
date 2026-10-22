@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 — 2026-10-22
+
+- Docs: add the Externa brand header (light/dark SVG in `.github/assets/`) to the README (#7)
+
 ## 1.0.1 — 2026-10-20
 
 - Docs: replace links to the non-public `qiick-io/externa-docs` repo with the canonical docs pages on https://docs.externa.qiick.io/ (`/docs/webhooks`, `/docs/public-cms-api`, `/docs/public-cms-api-types`) in the README and the Verify Webhook Signature request (#4)
