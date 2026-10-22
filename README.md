@@ -1,3 +1,11 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/header-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset=".github/assets/header-light.svg">
+    <img alt="Externa: Bruno API collection for Externa" src=".github/assets/header-light.svg" width="100%">
+  </picture>
+</p>
+
 # Externa Bruno collection
 
 Bruno collection for Externa's:
@@ -9,7 +17,7 @@ Bruno collection for Externa's:
 
 Docs: [Outbound webhooks](https://docs.externa.qiick.io/docs/webhooks).
 
-`package.json` declares version **`1.0.1`** (stable). `bruno.json` `"version": "1"` is Bruno's collection format version, not the package semver; `collectionVersion` is `v1.0.1`.
+`package.json` declares version **`1.0.2`** (stable). `bruno.json` `"version": "1"` is Bruno's collection format version, not the package semver; `collectionVersion` is `v1.0.2`.
 
 ## Contents
 
