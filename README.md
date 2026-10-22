@@ -17,7 +17,7 @@ Bruno collection for Externa's:
 
 Docs: [Outbound webhooks](https://docs.externa.qiick.io/docs/webhooks).
 
-`package.json` declares version **`1.0.1`** (stable). `bruno.json` `"version": "1"` is Bruno's collection format version, not the package semver; `collectionVersion` is `v1.0.1`.
+`package.json` declares version **`1.0.2`** (stable). `bruno.json` `"version": "1"` is Bruno's collection format version, not the package semver; `collectionVersion` is `v1.0.2`.
 
 ## Contents
 
