@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3 — 2026-10-23
+
+- Docs: switch the Externa brand header (`.github/assets/header-dark.svg` and `.github/assets/header-light.svg`) to the Externa v3 mark (#12)
+
 ## 1.0.2 — 2026-10-22
 
 - Docs: add the Externa brand header (light/dark SVG in `.github/assets/`) to the README (#7)
