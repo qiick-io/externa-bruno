@@ -92,8 +92,8 @@ docs {
   | Param | Default | Notes |
   |-------|---------|-------|
   | page | 1 | |
-  | per_page | 15 | Clamped 1–100 |
-  | include | files,users | CSV: `files`, `users`, relation field names (depth 1). Lean without it — **breaking:** clients need `include=files` for expanded media |
+  | per_page | 15 | Clamped 1–`API_MAX_PER_PAGE` (default **100**, #113) |
+  | include | files,users | CSV: `files`, `users`, relation field names (depth 1). Lean without it — **breaking:** clients need `include=files` for expanded media. Each token adds cost when `API_COST_LIMIT` is set |
   | locale | — | Flattened translatable fields |
   | include_all_translations | — | `true` to include all locales |
   | filter[field] | — | Optional field filters |
@@ -128,6 +128,7 @@ docs {
   
   | Status | Cause |
   |--------|-------|
-  | 403 | No `read` grant |
+  | 403 | No `read` grant; or key scope exclude (`collection_slugs` / #116) |
   | 404 | Unknown collection slug |
+  | 429 | Throttle / per-key limit / cost budget |
 }

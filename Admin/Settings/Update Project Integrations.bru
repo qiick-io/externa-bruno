@@ -1,0 +1,66 @@
+meta {
+  name: Update Project Integrations
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{base_url}}/settings/project/integrations
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  Content-Type: application/json
+  X-Requested-With: XMLHttpRequest
+}
+
+body:json {
+  {
+    "webhook_url": "https://webhook.site/REPLACE",
+    "webhook_secret": "",
+    "notifier_slack_webhook_url": null,
+    "notifier_telegram_bot_token": "",
+    "notifier_telegram_chat_id": null,
+    "notifier_event_types": [
+      "item.created",
+      "item.updated",
+      "ping"
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Update Project Integrations
+  
+  Saves webhook + notifier settings only.
+  
+  **Method:** PUT  
+  **Endpoint:** `{{base_url}}/settings/project/integrations`  
+  **Route name:** `project.integrations.update`  
+  **Permission:** `CanManageProjectSettings`
+  
+  ## Secrets (write-only)
+  
+  | Field | Empty submit |
+  | ----- | ------------ |
+  | `webhook_secret` | keep existing |
+  | `notifier_telegram_bot_token` | keep existing |
+  
+  Never returned on GET. Paste a new value only when rotating.
+  
+  ## Body fields
+  
+  - `webhook_url` — https URL (SSRF-guarded)
+  - `notifier_slack_webhook_url` — Slack incoming webhook URL
+  - `notifier_telegram_chat_id` — Telegram chat id
+  - `notifier_event_types` — subset of catalog types; omit to keep defaults; `[]` = notify none
+  
+  Session cookie + CSRF required. Expect redirect to `project.integrations.edit` on success.
+}

@@ -1,0 +1,87 @@
+meta {
+  name: Collection Import Webhook
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/ai/webhooks/collection-import
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-AI-Webhook-Signature: sha256=REPLACE_WITH_HMAC
+}
+
+body:json {
+  {
+    "collection_id": 1,
+    "upsert_key": "slug",
+    "records": [
+      {
+        "slug": "hello",
+        "title": "Hello from webhook"
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+tests {
+  test("returns import success or auth/validation error", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 404, 422]);
+  });
+
+  test("200 body reports ok and collection_id", function () {
+    if (res.getStatus() !== 200) return;
+    const body = res.getBody();
+    expect(body).to.have.property("ok", true);
+    expect(body).to.have.property("collection_id");
+  });
+}
+
+docs {
+  # Collection Import Webhook
+  
+  Imports associative rows into a collection after HMAC verification.
+  
+  **Method:** POST  
+  **Endpoint:** `{{base_url}}/ai/webhooks/collection-import`  
+  **Auth:** `X-AI-Webhook-Signature` (not Bearer / not session)  
+  **Throttle:** 30/min
+  
+  ## Sign (Node)
+  
+  Sign the **exact raw JSON body** with `AI_WEBHOOK_TOKEN` (`{{ai_webhook_token}}`):
+  
+      const crypto = require('crypto')
+      const sig = 'sha256=' + crypto.createHmac('sha256', token).update(rawBody).digest('hex')
+  
+  Paste into `X-AI-Webhook-Signature`. Wrong/missing signature → **401**. Token unset on server → **401** “Webhook signing is not configured.”
+  
+  ## Body
+  
+  | Field | Rules |
+  | ----- | ----- |
+  | `collection_id` | required, exists |
+  | `records` | required array, 1–500 associative rows |
+  | `upsert_key` | optional field name for upsert |
+  
+  ## Rotate (#207)
+  
+  Not an HTTP route — CLI only:
+  
+      php artisan ai:rotate-webhook-token --show
+      php artisan ai:rotate-webhook-token --write-env --grace=24h
+  
+  Grace accepts `AI_WEBHOOK_TOKEN_PREVIOUS` until `AI_WEBHOOK_TOKEN_PREVIOUS_EXPIRES_AT`. After Docker/`config:cache`, restart workers so the new token loads.
+  
+  Update collection `.env` `EXTERNA_AI_WEBHOOK_TOKEN` when you rotate.
+}

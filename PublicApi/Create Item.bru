@@ -51,7 +51,7 @@ docs {
   **Method:** POST  
   **Endpoint:** `{{base_url}}/api/v1/collections/{{collection_slug}}/items`  
   **Auth:** Bearer inherit  
-  **Permission:** `create`
+  **Permission:** `create` on the key’s role ∩ key scopes (#116: `read_only` keys get **403**; out-of-allowlist slug **403**)
   
   ---
   

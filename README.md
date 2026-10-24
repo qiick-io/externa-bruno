@@ -10,9 +10,10 @@
 
 Bruno collection for Externa's:
 
-- Public CMS REST API at `/api/v1`
+- Public CMS REST API at `/api/v1` (incl. cost/rate headers + API key scopes for core **1.3.0**)
 - GraphQL endpoint at `/api/graphql`
-- A couple of admin-only pack routes
+- Admin pack routes + **Settings** section routes (#201)
+- AI collection-import webhook (`POST /ai/webhooks/collection-import`, #207 rotation notes)
 - One outbound-webhook docs helper (`Verify Webhook Signature` — not an Externa route; see [Webhooks helper](#webhooks-helper))
 
 Docs: [Outbound webhooks](https://docs.externa.qiick.io/docs/webhooks).
@@ -35,6 +36,7 @@ Docs: [Outbound webhooks](https://docs.externa.qiick.io/docs/webhooks).
 - [Public API: GraphQL](#public-api-graphql)
 - [Webhooks helper](#webhooks-helper)
 - [Admin routes](#admin-routes)
+- [AI routes](#ai-routes)
 - [Status codes seen in docs](#status-codes-seen-in-docs)
 - [Client types](#client-types)
 
@@ -57,23 +59,24 @@ Before using this collection:
 
 ## Secrets
 
-`api_key` and `webhook_secret` must not sit in git as plaintext. Bruno documents two approaches; this collection uses the one that keeps **Local** reliably visible.
+`api_key`, `webhook_secret`, and `ai_webhook_token` must not sit in git as plaintext. Bruno documents two approaches; this collection uses the one that keeps **Local** reliably visible.
 
 ### Recommended: collection `.env` (what Local uses)
 
 1. Copy `.env.sample` → `.env` in the collection root (already gitignored via `.env*`).
-2. Set `EXTERNA_API_KEY` / `EXTERNA_WEBHOOK_SECRET`.
-3. `environments/Local.bru` reads them as `{{process.env.EXTERNA_API_KEY}}` and `{{process.env.EXTERNA_WEBHOOK_SECRET}}`.
+2. Set `EXTERNA_API_KEY` / `EXTERNA_WEBHOOK_SECRET` / `EXTERNA_AI_WEBHOOK_TOKEN` as needed.
+3. `environments/Local.bru` reads them as `{{process.env.EXTERNA_*}}`.
 
 See [DotEnv File](https://docs.usebruno.com/secrets-management/dotenv-file).
 
 ### Official `vars:secret` (UI Secrets tab)
 
-Per [Secret Variables](https://docs.usebruno.com/secrets-management/secret-variables), marking a var as secret writes only the **name** into the env file (`Local.bru` ships with `api_key` marked secret):
+Per [Secret Variables](https://docs.usebruno.com/secrets-management/secret-variables), marking a var as secret writes only the **name** into the env file (`Local.bru` ships with `api_key` and `ai_webhook_token` marked secret):
 
 ```bru
 vars:secret [
   api_key
+  ai_webhook_token
 ]
 ```
 
@@ -91,7 +94,7 @@ Assert vs tests: Bruno Assert is declarative (`res.status` equals `200`) and fin
 
 ### Origin gate smoke (when allowlist is on)
 
-With Settings → Project → Allowed origins non-empty:
+With Settings → Project → **API** → Allowed origins non-empty:
 
 1. Ensure `EXTERNA_API_KEY` is set in collection `.env`.
 2. Run Bearer-authenticated Public API / GraphQL requests → expect success (subject to grants).
@@ -118,7 +121,8 @@ The shipped **Local** environment defines only shared values:
 | --- | --- | --- |
 | `base_url` | `http://externa-core.test` | All requests |
 | `api_key` | via `.env` `EXTERNA_API_KEY` | Public API and GraphQL requests using Bearer auth |
-| `webhook_secret` | via `.env` `EXTERNA_WEBHOOK_SECRET` | Webhook signature helper |
+| `webhook_secret` | via `.env` `EXTERNA_WEBHOOK_SECRET` | Outbound webhook signature helper |
+| `ai_webhook_token` | via `.env` `EXTERNA_AI_WEBHOOK_TOKEN` | AI collection-import HMAC (`X-AI-Webhook-Signature`) |
 
 Request-specific values like `collection_slug`, `item_id`, `file_id`, and `include` live in each affected request’s `vars:pre-request` block (Bruno’s request vars), not in the environment.
 
@@ -142,7 +146,7 @@ Item list/show responses are **lean unless you opt in**. A frontend should almos
 
 ### Origin allowlist (project setting)
 
-Externa can restrict the Public API with project setting **`public_api_allowed_origins`** (Settings → Project → Public API).
+Externa can restrict the Public API with project setting **`public_api_allowed_origins`** (Settings → Project → **API**, core 1.3.0 / #201; Bruno: `Admin/Settings/Update Project API`).
 
 | Allowlist | What Bruno needs |
 | --- | --- |
@@ -199,11 +203,12 @@ Shared environment vars (`base_url`, `api_key`, `webhook_secret`) live in `envir
 | `PublicApi/Get OpenAPI Spec` | `auth: none` | Public OpenAPI JSON — no key / Origin gate |
 | `PublicApi/List Collections Anonymous` | `auth: none` | Uses the `public` role |
 | `PublicApi/Webhooks/Verify Webhook Signature` | `auth: none` | Docs helper only — placeholder URL 404s on externa-core; point at **your** receiver |
-| `Admin/` | request says `auth: inherit`, docs require session cookie | Intended for a logged-in admin browser/session, not Public API Bearer auth |
+| `Admin/` | request says `auth: inherit`, docs require session cookie | Logged-in admin browser/session; packs + Settings |
+| `Ai/Collection Import Webhook` | `auth: none` | HMAC header `X-AI-Webhook-Signature` |
 
 #### Using Admin routes in Bruno
 
-Admin routes (`Admin/Apply SEO Inline Field Pack`, etc.) require a **session cookie** from a logged-in user with the appropriate permissions (e.g. `can-edit-collections`).
+Admin routes (`Admin/Apply SEO Inline Field Pack`, `Admin/Settings/*`, etc.) require a **session cookie** from a logged-in user with the appropriate permissions (e.g. `can-edit-collections`, `CanManageProjectSettings`).
 
 1. Sign in to externa-core admin in your browser (same `base_url`).
 2. Open DevTools → Application → Cookies → copy the session cookie name and value.
@@ -211,7 +216,8 @@ Admin routes (`Admin/Apply SEO Inline Field Pack`, etc.) require a **session coo
    ```
    Cookie: <session_cookie_name>=<value>
    ```
-4. Send the request.
+4. For `PUT`/`POST`, also add `X-XSRF-TOKEN` (URL-decoded value of the `XSRF-TOKEN` cookie).
+5. Send the request.
 
 ### Permission model summary
 
@@ -220,6 +226,8 @@ Admin routes (`Admin/Apply SEO Inline Field Pack`, etc.) require a **session coo
 - File actions are `create`, `read`, `read_private`, `update`, `delete`.
 - Missing grant means deny.
 - Field ACL and `item_filter` still apply to REST and GraphQL reads/writes.
+- **API key scopes** (core 1.3.0 / #116): optional `collection_slugs` allowlist + `read_only` only **narrow** the key’s role (null/empty scopes = legacy behaviour).
+- **Abuse controls** (core 1.3.0 / #113): route throttle + per-key rate limit + optional cost budget (`API_COST_LIMIT`); cost responses may expose `X-RateLimit-*` / `Retry-After`.
 
 ### Files access behavior
 
@@ -231,13 +239,14 @@ Admin routes (`Admin/Apply SEO Inline Field Pack`, etc.) require a **session coo
 
 ## Collection structure
 
-The collection contains 29 request files:
+Request files (approx.):
 
 - `PublicApi/`: 14 requests
 - `PublicApi/Files/`: 7 requests
 - `PublicApi/GraphQL/`: 5 requests
 - `PublicApi/Webhooks/`: 1 request
-- `Admin/`: 2 requests
+- `Admin/`: 2 pack requests + `Admin/Settings/` (project sections + notifier/webhook tests)
+- `Ai/`: 1 request (collection-import webhook)
 
 Test fixtures: `fixtures/sample.png` is tracked in git for upload smoke tests.
 
@@ -439,17 +448,17 @@ Outbound webhooks are **Externa → your URL** (HMAC-signed). They are not part 
 - Method: `POST`
 - URL: `{{base_url}}/__webhook_receiver_docs_only__` (**intentional placeholder** — not a real externa-core route; sending as-is **404s**)
 - Purpose: Sample envelope + signing checklist so you can practice verifying `X-Externa-Signature` on **your** receiver.
-- Important inputs: raw JSON body, `webhook_secret` (same as Project settings; via `.env` `EXTERNA_WEBHOOK_SECRET`), headers `X-Externa-Event-Id`, `X-Externa-Timestamp`, `X-Externa-Signature`.
+- Important inputs: raw JSON body, `webhook_secret` (Integrations webhook secret; via `.env` `EXTERNA_WEBHOOK_SECRET`), headers `X-Externa-Event-Id`, `X-Externa-Timestamp`, `X-Externa-Signature`.
 - How to use:
   1. Replace the URL with webhook.site or your local receiver.
   2. Compute `sha256=` + HMAC-SHA256(raw body, `webhook_secret`) and set `X-Externa-Signature`.
   3. Send — Bruno acts as a **client to your receiver**, not as a caller of Externa.
-- Preferred smoke test without Bruno: Settings → Project → set Webhook URL + secret → queue worker → **Send test event** (or mutate an item) → inspect delivery on your URL.
+- Preferred smoke test: Settings → Project → **Integrations** → Webhook URL + secret → queue worker → **Send test event** (Bruno: `Admin/Settings/Send Test Webhook`) or mutate an item → inspect delivery.
 - Events Externa emits: `item.created|updated|deleted|restored`, `file.created|updated|deleted`, `collection.created|updated|deleted`, `ping`.
 
 ## Admin routes
 
-These are admin-side routes, not Public API endpoints.
+These are admin-side routes, not Public API endpoints. Session cookie (+ CSRF for writes).
 
 ### Apply SEO Inline Field Pack
 - Method: `POST`
@@ -465,16 +474,43 @@ These are admin-side routes, not Public API endpoints.
 - Important inputs: optional body values `name` and `slug` can override the target collection naming.
 - Notes: docs mark it as idempotent on existing slugs; requires admin session auth and `can-create-collections`.
 
+### Settings (core 1.3.0 / #201)
+
+Under `Admin/Settings/`. Permission: `CanManageProjectSettings`.
+
+| Request | Method | Path |
+| --- | --- | --- |
+| Get Project General | GET | `/settings/project` |
+| Get / Update Project API | GET / PUT | `/settings/project/api` |
+| Get / Update Project Integrations | GET / PUT | `/settings/project/integrations` |
+| Send Test Webhook | POST | `/settings/project/integrations/webhook-test` |
+| Send Test Webhook Deprecated Alias | POST | `/settings/project/webhook-test` |
+| Send Test Slack / Telegram Notifier | POST | `/settings/project/integrations/*-notifier-test` |
+| Get Appearance Sidebar | GET | `/settings/appearance/sidebar` |
+
+Folder docs list the full section map (localization, security, content, files). Section `PUT`s save only that section’s keys. Requires core with #201 merged (open as externa-core PR #304 until then).
+
+## AI routes
+
+### Collection Import Webhook
+- Method: `POST`
+- URL: `{{base_url}}/ai/webhooks/collection-import`
+- Purpose: HMAC-signed bulk import into a collection (`collection_id`, `records`, optional `upsert_key`).
+- Important inputs: raw body + `X-AI-Webhook-Signature` using `ai_webhook_token` (`EXTERNA_AI_WEBHOOK_TOKEN`).
+- Notes: CSRF-exempt. Rotate with `php artisan ai:rotate-webhook-token` (#207); grace window accepts previous token until expiry. **Rotation itself is CLI-only** — not a Bruno HTTP request.
+
 ## Status codes seen in docs
 
 | Code | Meaning |
 | --- | --- |
 | `200` / `201` / `204` | Success |
-| `401` | Invalid or revoked key, IP not allowlisted, or unsupported key role |
-| `403` | Missing collection/file/admin permission; or origin gate when allowlist is set (`Origin not allowed.` / `Origin required or API key.`) |
+| `401` | Invalid/revoked key, IP not allowlisted, unsupported key role, or bad AI webhook signature |
+| `403` | Missing collection/file/admin permission; origin gate; or API key scope deny (#116) |
 | `404` | Unknown slug, id, or route target |
+| `413` | Body over `API_MAX_BODY_BYTES` when enabled (#113) |
+| `419` | CSRF failure on Admin mutating routes |
 | `422` | Validation failure |
-| `429` | Rate limiting |
+| `429` | Route throttle, per-key rate limit, or cost budget (#113) |
 
 ## Client types
 

@@ -1,0 +1,40 @@
+meta {
+  name: Send Test Webhook Deprecated Alias
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base_url}}/settings/project/webhook-test
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  X-Requested-With: XMLHttpRequest
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Send Test Webhook (deprecated alias)
+  
+  Same handler as **Send Test Webhook**, kept for one minor release after #201.
+  
+  **Method:** POST  
+  **Endpoint:** `{{base_url}}/settings/project/webhook-test`  
+  **Route name:** `project.webhook-test` (deprecated)
+  
+  Prefer `POST /settings/project/integrations/webhook-test`.
+  
+  Slack/Telegram notifier tests have the same pattern:
+  
+  | Preferred | Deprecated alias |
+  | --------- | ---------------- |
+  | `…/integrations/slack-notifier-test` | `/settings/project/slack-notifier-test` |
+  | `…/integrations/telegram-notifier-test` | `/settings/project/telegram-notifier-test` |
+}

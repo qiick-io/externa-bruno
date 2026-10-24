@@ -5,7 +5,10 @@ vars {
   api_key: {{process.env.EXTERNA_API_KEY}}
   @description('Webhook HMAC secret. Prefer .env EXTERNA_WEBHOOK_SECRET.')
   webhook_secret: {{process.env.EXTERNA_WEBHOOK_SECRET}}
+  @description('AI collection-import HMAC token. Prefer .env EXTERNA_AI_WEBHOOK_TOKEN.')
+  ai_webhook_token: {{process.env.EXTERNA_AI_WEBHOOK_TOKEN}}
 }
 vars:secret [
   api_key
+  ai_webhook_token
 ]

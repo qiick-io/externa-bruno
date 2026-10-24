@@ -90,13 +90,13 @@ docs {
   
   | Variable | Purpose |
   |----------|---------|
-  | `webhook_secret` | Same secret as Settings → Project → webhook secret |
+  | `webhook_secret` | Same secret as Settings → Project → **Integrations** webhook secret (via `.env` `EXTERNA_WEBHOOK_SECRET`) |
   
   ## Real delivery from Externa (preferred smoke test)
   
-  1. Settings → Project → Webhook URL + Generate secret → Save  
+  1. Settings → Project → **Integrations** (`/settings/project/integrations`, core 1.3.0 / #201) → Webhook URL + secret → Save  
   2. Run a queue worker  
-  3. **Send test event** (`ping`) or create/update an item  
+  3. **Send test event** (`ping`) via UI or Bruno `Admin/Settings/Send Test Webhook` (deprecated alias: `POST /settings/project/webhook-test`)  
   4. Inspect the POST on webhook.site / your receiver  
   
   Events: `item.*`, `file.*`, `collection.*`, `ping` — see externa-docs `/docs/webhooks`.

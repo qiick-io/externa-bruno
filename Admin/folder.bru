@@ -2,3 +2,24 @@ meta {
   name: Admin
   seq: 2
 }
+
+docs {
+  # Admin
+  
+  Session-authenticated admin / Inertia routes (not Public API Bearer).
+  
+  ## Subfolders
+  
+  | Folder | Purpose |
+  |--------|---------|
+  | *(root)* | Collection / field packs |
+  | **Settings/** | Project settings sections + webhook/notifier tests (core 1.3.0 / #201) |
+  
+  ## Auth
+  
+  1. Sign in at `{{base_url}}`
+  2. Copy session cookie into `Cookie:` on the request
+  3. Mutating calls need CSRF (`X-XSRF-TOKEN` from `XSRF-TOKEN` cookie)
+  
+  Pack routes need `can-create-collections` / `can-edit-collections`. Settings need `CanManageProjectSettings`.
+}

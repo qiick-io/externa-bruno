@@ -1,0 +1,65 @@
+meta {
+  name: Update Project API
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{base_url}}/settings/project/api
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  Content-Type: application/json
+  X-Requested-With: XMLHttpRequest
+  X-Inertia: true
+  X-Inertia-Version: REPLACE_WITH_ASSET_VERSION
+}
+
+body:json {
+  {
+    "public_api_allowed_origins": [
+      "http://localhost:3000",
+      "https://www.example.com"
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Update Project API
+  
+  Saves CORS allowlist only (`public_api_allowed_origins`). Invalidates the Public API origins cache.
+  
+  **Method:** PUT  
+  **Endpoint:** `{{base_url}}/settings/project/api`  
+  **Route name:** `project.api.update`  
+  **Permission:** `CanManageProjectSettings`
+  
+  ## Body
+  
+  Origins must be `http(s)` with **no path** (e.g. `https://www.example.com`). CSV string is also accepted and split server-side.
+  
+  ```json
+  {
+    "public_api_allowed_origins": ["http://localhost:3000"]
+  }
+  ```
+  
+  Empty / omit → clear allowlist (Public API open to any Origin, subject to key/role rules).
+  
+  ## Bruno extras
+  
+  - Session `Cookie` + CSRF (`X-XSRF-TOKEN`) required
+  - `X-Inertia` / `X-Inertia-Version` optional; without them expect a normal redirect (`302`) to `project.api.edit`
+  
+  ## Gaps
+  
+  Cannot fully smoke-test Inertia flash without a browser session + matching asset version. Prefer the UI for day-to-day saves; use this request to verify the route exists and auth/CSRF behave.
+}

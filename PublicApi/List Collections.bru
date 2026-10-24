@@ -67,5 +67,10 @@ docs {
   | Status | Cause |
   |--------|-------|
   | 401 | Invalid/revoked key, IP not allowlisted, key on super-admin |
-  | 429 | Rate limit exceeded |
+  | 403 | Role lacks `read`; or key `collection_slugs` allowlist excludes every collection |
+  | 429 | Route throttle, per-key rate limit, or cost budget (`API_COST_LIMIT`) |
+  
+  ## Rate / cost headers (#113)
+  
+  When `API_COST_LIMIT` > 0, inspect `X-RateLimit-Limit` and `X-RateLimit-Remaining` on 200/429. Cost 429 also sets `Retry-After`.
 }

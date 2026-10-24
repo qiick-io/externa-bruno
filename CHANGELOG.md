@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+- Settings: add `Admin/Settings/` requests for project section routes + integrations webhook/notifier tests (core #201); document deprecated test aliases
+- Public API: document API key scopes (`collection_slugs`, `read_only`, #116) and cost/rate-limit headers / payload caps (#113)
+- AI: add `Ai/Collection Import Webhook` + `ai:rotate-webhook-token` notes (#207); env `EXTERNA_AI_WEBHOOK_TOKEN`
+- Docs: README/env sample updates for Integrations path and Admin CSRF
+
 ## 1.0.3 — 2026-10-23
 
 - Docs: switch the Externa brand header (`.github/assets/header-dark.svg` and `.github/assets/header-light.svg`) to the Externa v3 mark (#12)

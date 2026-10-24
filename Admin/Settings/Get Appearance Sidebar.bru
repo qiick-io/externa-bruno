@@ -1,0 +1,34 @@
+meta {
+  name: Get Appearance Sidebar
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{base_url}}/settings/appearance/sidebar
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  X-Requested-With: XMLHttpRequest
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Get Appearance Sidebar
+  
+  Sidebar module layout moved next to Appearance in #201 (`sidebar_modules`).
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/settings/appearance/sidebar`  
+  **Route name:** `appearance.sidebar.edit`  
+  **Permission:** `CanManageProjectSettings`
+  
+  Other section GETs (localization, security, content, files) follow the same pattern under `/settings/project/{section}` — not duplicated here to keep the collection lean; see folder docs for the full map.
+}

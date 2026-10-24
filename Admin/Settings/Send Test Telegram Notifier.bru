@@ -1,0 +1,34 @@
+meta {
+  name: Send Test Telegram Notifier
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{base_url}}/settings/project/integrations/telegram-notifier-test
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  X-Requested-With: XMLHttpRequest
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Send Test Telegram Notifier
+  
+  Sends a `ping` to Telegram synchronously (surfaces Bot API errors in flash).
+  
+  **Method:** POST  
+  **Endpoint:** `{{base_url}}/settings/project/integrations/telegram-notifier-test`  
+  **Route name:** `project.integrations.telegram-notifier-test`  
+  **Permission:** `CanManageProjectSettings`
+  
+  Requires bot token + chat id under Integrations. Deprecated alias: `POST /settings/project/telegram-notifier-test`.
+}
