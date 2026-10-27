@@ -1,0 +1,34 @@
+meta {
+  name: Send Test Slack Notifier
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{base_url}}/settings/project/integrations/slack-notifier-test
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  X-Requested-With: XMLHttpRequest
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Send Test Slack Notifier
+  
+  Queues a `ping` notifier through the configured Slack incoming webhook.
+  
+  **Method:** POST  
+  **Endpoint:** `{{base_url}}/settings/project/integrations/slack-notifier-test`  
+  **Route name:** `project.integrations.slack-notifier-test`  
+  **Permission:** `CanManageProjectSettings`
+  
+  Requires `notifier_slack_webhook_url` under Integrations. Deprecated alias: `POST /settings/project/slack-notifier-test`.
+}

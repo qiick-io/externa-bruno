@@ -1,0 +1,36 @@
+meta {
+  name: Get Project Integrations
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/settings/project/integrations
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  X-Requested-With: XMLHttpRequest
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Get Project Integrations
+  
+  Inertia edit page for outbound webhooks + Slack/Telegram notifiers (moved from monolithic project settings in #201).
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/settings/project/integrations`  
+  **Route name:** `project.integrations.edit`  
+  **Permission:** `CanManageProjectSettings`
+  
+  Props include webhook URL, whether secrets are configured (never the secret values), notifier fields, event catalog, and recent delivery summary.
+  
+  Configure `webhook_url` + secret here before **Send Test Webhook**. Copy the secret into collection `.env` as `EXTERNA_WEBHOOK_SECRET` for the PublicApi Webhooks helper.
+}

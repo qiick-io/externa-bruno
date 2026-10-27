@@ -1,0 +1,37 @@
+meta {
+  name: Get Project API
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/settings/project/api
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  X-Requested-With: XMLHttpRequest
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Get Project API
+  
+  Inertia edit page for Public API CORS origins (`public_api_allowed_origins`).
+  
+  **Method:** GET  
+  **Endpoint:** `{{base_url}}/settings/project/api`  
+  **Route name:** `project.api.edit`  
+  **Permission:** `CanManageProjectSettings`  
+  **Auth:** session cookie
+  
+  Requires externa-core with #201 merged (section routes). Saving this section clears the CORS origins cache; other sections do not.
+  
+  Link card on the page points to Access → API Keys (scopes live there, not here).
+}

@@ -1,0 +1,52 @@
+meta {
+  name: Settings
+  seq: 10
+}
+
+docs {
+  # Admin → Settings (project sections)
+  
+  Session-auth Inertia routes under `/settings/*` (externa-core **1.3.0** / #201).
+  
+  Permission: `CanManageProjectSettings`. Not Public API Bearer auth.
+  
+  ## Auth in Bruno
+  
+  Same as other `Admin/` requests:
+  
+  1. Sign in at `{{base_url}}` in a browser
+  2. Copy the session cookie into a `Cookie:` header
+  3. For mutating requests (`PUT` / `POST`), also send CSRF (`X-XSRF-TOKEN` from the `XSRF-TOKEN` cookie, URL-decoded) — Laravel rejects bare POSTs without it
+  
+  Expected statuses without a valid session/CSRF: **302** login redirect, **419** CSRF, or **403**.
+  
+  ## Section route map (#201)
+  
+  | Section | GET (edit) | PUT (update) |
+  |---------| | ---------- | ------------ |
+  | General (name, description, url, report_*) | `/settings/project` | same |
+  | Localization | `/settings/project/localization` | same |
+  | Authentication & Security (+ OIDC, registration) | `/settings/project/security` | same |
+  | Content (revisions, preview URL) | `/settings/project/content` | same |
+  | Files & Media | `/settings/project/files` | same |
+  | API (CORS origins) | `/settings/project/api` | same |
+  | Integrations (webhooks + Slack/Telegram) | `/settings/project/integrations` | same |
+  | Appearance → Sidebar modules | `/settings/appearance/sidebar` | same |
+  
+  Each `PUT` saves **only that section’s keys**. Empty write-only secrets (`webhook_secret`, `oidc_client_secret`, `notifier_telegram_bot_token`) keep the stored value.
+  
+  ## Test / ping endpoints
+  
+  | Action | Preferred (1.3.0) | Deprecated alias (kept one minor) |
+  | ------ | ----------------- | --------------------------------- |
+  | Webhook `ping` | `POST /settings/project/integrations/webhook-test` | `POST /settings/project/webhook-test` |
+  | Slack notifier test | `POST …/integrations/slack-notifier-test` | `POST /settings/project/slack-notifier-test` |
+  | Telegram notifier test | `POST …/integrations/telegram-notifier-test` | `POST /settings/project/telegram-notifier-test` |
+  
+  Webhook URL + secret must be configured under **Integrations** before the ping succeeds.
+  
+  ## Related Public API notes
+  
+  - CORS origins edited here gate Public API when non-empty (see `PublicApi/` folder docs).
+  - API **keys** (scopes / rate limits) stay under Access → API Keys, not these routes.
+}

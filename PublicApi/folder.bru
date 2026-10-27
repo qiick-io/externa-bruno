@@ -33,6 +33,34 @@ docs {
   
   Actions: `create` | `read` | `update` | `delete`. Missing grant = **deny** (403).
   
+  ### API key scopes (core 1.3.0 / #116)
+  
+  Optional per-key narrowing (never expands the role):
+  
+  | Field | Effect |
+  |-------|--------|
+  | `collection_slugs` | Allowlist; null/empty = all collections the role can access |
+  | `read_only` | Blocks create/update/delete (REST + GraphQL); reads still follow role ACL ∩ allowlist |
+  
+  Out-of-scope collection → **403**. Configure under Access → API Keys (not Project Settings).
+  
+  ## Abuse controls (core 1.3.0 / #113)
+  
+  Stacked limiters (all can 429):
+  
+  1. Route `throttle:api` (user id or IP)
+  2. Per-key `rate_limit_per_minute` (fallback `API_KEY_RATE_LIMIT`)
+  3. Cost budget when `API_COST_LIMIT` > 0 (`ApiRequestCostMiddleware`): base + includes + mutations
+  
+  When the cost budget is enabled, successful responses and cost 429s include:
+  
+  - `X-RateLimit-Limit` / `X-RateLimit-Remaining` (cost units, 60s window)
+  - `Retry-After` on cost 429 (`API cost budget exceeded.`)
+  
+  Payload: `API_MAX_BODY_BYTES` (0 = off) → **413**; `per_page` capped by `API_MAX_PER_PAGE` (default 100).
+  
+  GraphQL: `GRAPHQL_MAX_DEPTH` / `GRAPHQL_MAX_COMPLEXITY` when set (see externa-docs).
+  
   Subfolder **Files** covers `/api/v1/files*` (global file CRUD).
   
   ## Shared env vars
@@ -53,6 +81,8 @@ docs {
   | Slim / IDs only | omit or empty |
   | Media + editors | `files,users` (Bruno default on list/get) |
   | + relations | `files,users,author,categories` (real field names) |
+  
+  Each `include` token adds cost when `API_COST_LIMIT` is set.
   
   Docs site: externa-docs → Public CMS API.
 }

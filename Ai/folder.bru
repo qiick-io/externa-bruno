@@ -1,0 +1,24 @@
+meta {
+  name: Ai
+  seq: 3
+}
+
+docs {
+  # Ai
+  
+  Machine endpoints for Externa AI (HMAC), not Public CMS Bearer auth and not session Admin packs.
+  
+  ## Collection import webhook
+  
+  `POST /ai/webhooks/collection-import` — CSRF-exempt; signed with `AI_WEBHOOK_TOKEN`.
+  
+  Header: `X-AI-Webhook-Signature: sha256=` + HMAC-SHA256(**raw body**, token).
+  
+  Rotate the token with `php artisan ai:rotate-webhook-token` (#207). During `--grace=…` both current and previous tokens verify until `AI_WEBHOOK_TOKEN_PREVIOUS_EXPIRES_AT`.
+  
+  Env (collection `.env`):
+  
+  | Variable | Purpose |
+  |----------|---------|
+  | `EXTERNA_AI_WEBHOOK_TOKEN` | Current HMAC secret → Bruno `ai_webhook_token` |
+}

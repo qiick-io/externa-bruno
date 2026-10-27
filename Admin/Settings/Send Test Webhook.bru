@@ -1,0 +1,44 @@
+meta {
+  name: Send Test Webhook
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/settings/project/integrations/webhook-test
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: text/html, application/xhtml+xml
+  X-Requested-With: XMLHttpRequest
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # Send Test Webhook
+  
+  Queues a signed outbound `ping` to the configured project webhook URL.
+  
+  **Method:** POST  
+  **Endpoint:** `{{base_url}}/settings/project/integrations/webhook-test`  
+  **Route name:** `project.integrations.webhook-test`  
+  **Permission:** `CanManageProjectSettings`
+  
+  Prerequisites (Integrations settings):
+  
+  1. `webhook_url` set
+  2. `webhook_secret` configured
+  3. Queue worker running (`php artisan queue:work` / Horizon)
+  
+  Flash error if URL/secret missing; success flash when queued.
+  
+  Inspect delivery on webhook.site / your receiver, or practice HMAC with **PublicApi → Webhooks → Verify Webhook Signature**.
+  
+  Deprecated alias (same action): `POST /settings/project/webhook-test` — see **Send Test Webhook Deprecated Alias**.
+}
