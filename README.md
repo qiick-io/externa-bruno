@@ -484,3 +484,7 @@ TypeScript, OpenAPI, and JSON Schema for Public CMS responses live in **externa-
 - Artifacts: `public/client-types/types.ts`, `openapi.yaml`, `schema.json`
 
 This collection does not duplicate those files. Runtime OpenAPI JSON is also in Bruno as **Get OpenAPI Spec** (`GET {{base_url}}/api/v1/openapi.json`, no key; since core 1.1.0).
+
+## Code of Conduct
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md).
