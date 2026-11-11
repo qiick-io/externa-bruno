@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4 — 2026-11-11
+
+- Docs: point the docs links in the README and the Verify Webhook Signature request to the shared Qiick docs at https://docs.qiick.io/externa (`/externa/webhooks`, `/externa/public-cms-api`, `/externa/public-cms-api-types`); docs.externa.qiick.io redirects there page by page (#22)
+
 ## 1.0.3 — 2026-10-23
 
 - Docs: switch the Externa brand header (`.github/assets/header-dark.svg` and `.github/assets/header-light.svg`) to the Externa v3 mark (#12)
